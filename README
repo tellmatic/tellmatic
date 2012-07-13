@@ -1,0 +1,112 @@
+/********************************************************************************/
+/* this file is part of: / diese Datei ist ein Teil von:                        */
+/* tellmatic, the newslettermachine                                             */
+/* tellmatic, die Newslettermaschine                                            */
+/* 2006/11 by Volker Augustin, multi.art.studio Hanau                            */
+/* Contact/Kontakt: info@tellmatic.org                                      */
+/* Homepage: www.tellmatic.org                                                   */
+/* leave this header in file!                                                   */
+/* diesen Header nicht loeschen!                                                */
+/* check Homepage for Updates and more Infos                                    */
+/* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
+/********************************************************************************/
+
+*+*+*+*+*+*+*+*+*+*+*+ README +*+*+*+*+*+*+*+*+*+*+*+*
+
+	tellmatic - the newslettermachine, die Newslettermaschine
+	2006/11 by Volker Augustin, multi.art.studio Hanau
+	Contact/Kontakt: info@tellmatic.org
+	Homepage: www.tellmatic.org
+	check Homepage for Updates and more Infos
+	Besuchen Sie die Homepage für Updates und weitere Infos
+
+
+	Diese Software ist OpenSource und steht unter der GPL/AGPL Lizenz.
+	Es besteht keinerlei Gewaehrleistung oder Garantie!
+
+*+*+*+*+*+*+*+*+*+*+ LICENSE +*+*+*+*+*+*+*+*+*+*+*
+
+	GPL V2.1 ++
+	http://www.gnu.org/licenses/gpl.html
+	AGPL	
+	http://www.gnu.org/licenses/agpl.html
+	
+*+*+*+*+*+*+*+*+*+*+ REQUIREMENTS +*+*+*+*+*+*+*+*+*+*+*
+	Server / ISP:
+		- Linux oder MacosX, (NO Windows!)
+		- Apache HTTP Server (or similar, must support .htaccess) => http://httpd.apache.org/download.cgi
+		- PHP >= 5.2 => http://www.php.net/downloads.php , no early php5/php4 (full of bugs)! 
+           + Imap Library + Mysql Lib + GD-Lib
+           
+           (Tellmatic is developed and tested under PHP5.2 stable releases + suhosin + fcgi)
+		- Mysql >= v4.1 (Mysql 4.1.x/5.x, NO Mysql3!)
+           (Tellmatic is developed and tested under Mysql5 stable releases)
+		- Access to SMTP, POP3 and/or IMAP Server
+		- Optional: Cronjobs, PHP CLI or wget (Cronjobs execute at least every 10 Min. to be effective)
+    
+    Client:   
+       standard Browser with Javascript support (Seamonkey, Mozilla or Firefox, IE (limited, no 24Bit PNG support))
+       IE Support is limited1 Please use a standard browser.
+
+*+*+*+*+*+*+*+*+*+*+ BASIC-FEATURES V1.0.x +*+*+*+*+*+*+*+*+*+*+*
+	Easy installation, installed in 2 minutes
+	Comfortable and intuitive web frontend
+	Multiuser
+	Online help
+	Multilingual
+	Filemanager
+	Linkmanager
+	Quality checks
+	Search for double entries
+	Different styles for frontend
+	Wysiwyg Online-Editor (TinyMCE) & spellchecker	
+	Blacklist (blacklist by email, domain or regular expression)
+	Multiple mailservers for SMTP and POP3/IMAP (maildelivery and bouncemanagement)
+	Graphical statistics
+	Geographical maps (subscriptions, readers, etc.), using GeoIP API and database
+	Scheduled mail delivery, (with cronjobs), write now, send in two weeks
+	Multiple address-/recipientgroups per address (private and public groups, define default groups/subcribers can choose from public groups etc)
+	Unlimited! Unlimited amount of emails, newsletter etc, no hardcoded Limits! (Just depends on your server settings)
+	Newslettergroups
+	Newsletter Templates
+	Bouncemanagement
+	Duplicate Checking!
+	Errormanagement, delivery-errors, address-errors etc
+	Statistics and reports
+	"Clean Up Database"-Feature (delete, move, set status of failed addresses etc.)
+	Email-Reports 
+	Click-/Linktracker
+	Viewtracker (blank blindimage, or any other png/jpg)
+	Linkmanager and Link-Tracking, Links can be personalized 
+	personalized Tracking option
+	Email validation (3 levels for internal and subscriptions, import etc)
+	CSV address import
+	CSV address export
+	Personalized newsletter (add a private salutation etc, track clicks, views etc.)
+	Massmailing (send anonymized newsletter)
+	View personalized Newsletter online
+	Delivery via SMTP
+	Double opt-in/out
+	Subscription-form-generator
+	Unlimited attachments
+	
+	and much more...	
+
+*+*+*+*+*+*+*+*+*+*+ INSTALLATION +*+*+*+*+*+*+*+*+*+*+*
+
+	Bitte INSTALL.DE / UPDATE / CHANGES lesen
+
+	Please read INSTALL.EN / UPDATE / CHANGES 
+
+	http://www.tellmatic.org
+
+*+*+*+*+*+*+*+*+*+*+*+*+ TELLMATIC +*+*+*+*+*+*+*+*+*+*+*+*
+
+	About: http://www.tellmatic.org/about
+
+*+*+*+*+*+*+*+*+*+*+*+*+ CREDITS +*+*+*+*+*+*+*+*+*+*+*+*
+
+	Credits: http://www.tellmatic.org/credits
+
+
+EOF

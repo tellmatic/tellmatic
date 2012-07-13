@@ -1,0 +1,123 @@
+.userinfo {
+	text-align:center; 
+	font-size:8pt;
+	background-color:#eeeeee;
+	margin: 2px 2px 2px 2px;
+}
+
+.list_edit {
+	border-bottom: 1px solid #aaaaaa;
+	border-left: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
+}
+
+.adr_summary {
+	background-color:#d4e0e0;/*cceeee*/
+	border: 1px dashed #cccccc;
+	margin: 4px 0 4px 0;
+	padding:4px;
+	-moz-border-radius:0.5em 0.5em 0.5em 0.5em;
+}
+.adr_search_form_table {
+	width:100%;
+	background-color:#d4e0e0;/*cceeee*/
+	border: 1px dashed #cccccc;
+	margin: 4px 0 4px 0;
+	padding:4px;
+	-moz-border-radius:0.5em 0.5em 0.5em 0.5em;
+}
+.log_summary {
+	/*background-color:#cc8888;*/
+	border:1px dashed #ffffff;
+	padding:4px;
+	font-size:7pt;
+}
+.log_summary td {
+	background-color:#eeeeee;
+	/*border:1px dashed #cccccc;*/
+	padding:0px;
+	font-size:7pt;
+}
+
+.link_logbook_section {
+	background-color:#eeeeff;
+}
+
+.tm_message {
+	background-image:url(../img/icons/bullet_blue.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#000000;
+	background-color:#eeeeff;
+}
+.tm_message_success {
+	/*  background-repeat:no-repeat;*/
+	background-image:url(../img/icons/accept.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#009900;
+	background-color:#ddddff;
+}
+.tm_message_notice {
+	background-image:url(../img/icons/eye.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#000099;
+	background-color:#ddddff;
+}
+.tm_message_config {
+	/*  background-repeat:no-repeat;*/
+	background-image:url(../img/icons/wrench.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#000099;
+	background-color:#ddddff;
+}
+.tm_message_warning {
+	background-image:url(../img/icons/lightning.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#990000;
+	background-color:#ffffdd;
+}
+.tm_message_error {
+	background-image:url(../img/icons/exclamation.png); background-repeat:no-repeat;
+	padding-left:20px;
+	height: 18px;	
+	font-size:9pt;
+	font-weight:normal;
+	color:#ff0000;
+	background-color:#ffffaa;
+}
+.tm_message_debug {
+	background-image:url(../img/icons/bug.png); background-repeat:no-repeat;
+	padding-left:20px;
+	min-height: 18px;	
+	font-size:8pt;
+	font-weight:normal;
+	font-style:italic;
+	color:#07499c;
+	background-color:#ffffff;
+}
+
+.flash_submit {
+	background-color:#ff00ff;
+}
+
+/*
+ .image_fader{ 
+ 	position:relative; 
+ 	filter:alpha(opacity=40); 
+	-moz-opacity:0.39603960396039606;
+ }
+*/

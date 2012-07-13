@@ -1,0 +1,82 @@
+/*captcha: s: foreground, w: background*/
+.s { width:1px; height:1px; color: black; background-color: red; font-size : 2pt; }
+.w { width:1px; height:1px; color: white; background-color: white; font-size : 2pt; }
+
+.tm_debugmessage {
+	font-size:9pt;
+	color:#990000;
+	background-color:#ffff99;
+}
+
+.tm_form_email {
+  border:1px solid #dddddd;  padding:1px;
+  width:100%;
+  background-color:#eeeeee;
+  font-family : Arial,Helvetica; 
+  color:#000000; 
+  font-size : 12pt;
+  }
+.tm_form_focus_email {
+  border:1px solid #ffcc00;
+  padding:1px;
+  width:100%;
+  background-color:#ffffff;
+  font-family : Arial,Helvetica; 
+  color:#000099; 
+  font-size : 12pt;
+}
+
+
+.tm_form_captcha, .tm_form_memo{
+  border:1px solid #dddddd;  padding:1px;
+  width:100%;
+  background-color:#eeeeee;
+  font-family : Arial,Helvetica; 
+  color:#000000; 
+  font-size : 10pt;
+}
+.tm_form_focus_captcha, .tm_form_focus_memo {
+  border:1px solid #eeeeee;
+  padding:1px;
+  width:100%;
+  background-color:#ffffff;
+  font-family : Arial,Helvetica; 
+  color:#000099; 
+  font-size : 10pt;
+}
+
+.tm_form_group_select {
+  border:1px solid #dddddd;  padding:1px;
+  width:100%;
+  background-color:#eeeeee;
+  font-family : Arial,Helvetica; 
+  color:#000000; 
+  font-size : 12pt;
+  }
+.tm_form_focus_group_select {
+  border:1px solid #ffcc00;
+  padding:1px;
+  width:100%;
+  background-color:#ffffff;
+  font-family : Arial,Helvetica; 
+  color:#000099; 
+  font-size : 12pt;
+}
+
+.tm_form_f0,.tm_form_f1,.tm_form_f2,.tm_form_f3,.tm_form_f4,.tm_form_f5,.tm_form_f6,.tm_form_f7,.tm_form_f8,.tm_form_f9 {
+  border:1px solid #dddddd;  padding:1px;
+  background-color:#eeeeee;
+  font-family : Arial,Helvetica; 
+  color:#000000; 
+  font-size : 10pt;
+}
+
+
+.tm_form_focus_f0, .tm_form_focus_f1, .tm_form_focus_f2, .tm_form_focus_f3, .tm_form_focus_f4, .tm_form_focus_f5, .tm_form_focus_f6, .tm_form_focus_f7, .tm_form_focus_f8, .tm_form_focus_f9 {
+  border:1px solid #eeeeee;
+  padding:1px;
+  background-color:#ffffff;
+  font-family : Arial,Helvetica; 
+  color:#000099; 
+  font-size : 10pt;
+}

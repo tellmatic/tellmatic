@@ -1,0 +1,64 @@
+.head1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 12px;
+	background-color: #eeeeee;
+	color: #000000;
+	text-indent:4px;
+	border: 1px solid #cccccc;
+}
+.block1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size: 10px;
+	background-color: #ffffff;
+	color: #000000;
+	text-indent:4px;
+	border: 1px solid #cccccc;
+}
+
+
+.console {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 10px;
+	background-color: #000000;
+	color: #ffffff;
+	text-indent:4px;
+	border: 2px dashed #cccccc;
+}
+
+.config {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size: 10px;
+	text-indent:8px;
+	background-color: #eeeeee;
+	color: #000000;
+	border: 1px solid #dddddd;
+}
+
+.memo {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size: 10px;
+	color: #000099;
+}
+
+.tablerow_even {
+	background-color: #BBBBBB;
+}
+.tablerow_odd {
+	background-color: #cccccc;
+}
+.red {
+	background-color: #ff0000;
+}
+.blue {
+	background-color: #0000ff;
+}
+.green {
+	background-color: #0000ff;
+}
+.edit_tinymce_css_for_new_style_classes {
+}

@@ -1,0 +1,143 @@
+.main {
+		font-family : Arial,Helvetica; 
+		font-size:10pt; 
+		position:absolute;
+		left: 220px;
+		top: 96px;
+		width:760px;
+		 border-top:2px solid #eceae0;
+	background-color:#f7f2e7;
+		-moz-border-radius:2em 2em 2em 2em ;
+}		
+
+.main td {
+		font-family : Arial,Helvetica; 
+		font-size:9pt; 
+}		
+
+.main_head{
+	font-family : Arial,Helvetica; 
+	font-size:9pt; 
+	font-weight:bold;
+	color:#000000;
+	padding:3px;
+	border-top:2px solid #eceae0;
+	background-color:#fffdf8;
+	  -moz-border-radius:2em 2em 0 0;
+}	
+
+.main_head h1{
+	font-family : Arial,Helvetica; 
+	font-size:14pt;
+	color:#ffffff;
+}
+.main_head h2{
+	font-family : Arial,Helvetica; 
+	font-size:12pt; 
+	color:#ffffff;
+}
+
+.main_info{
+	font-family : Arial,Helvetica; 
+	font-size:9pt; 
+	padding:4px;
+	background-color:#fffdf8;
+	border:3px solid #cccccc;
+	color:#000000;
+	position:absolute;
+	top:48px;
+	left:48px;
+	width:80%;
+	z-index:2;
+	-moz-border-radius:2em 2em 2em 2em ;
+}	
+
+.main_info_nopopup{
+	font-family : Arial,Helvetica; 
+	font-size:9pt; 
+	padding:4px;
+	background-color:#fffdf8;
+	border:3px solid #cccccc;
+	color:#000000;
+	top:48px;
+	left:48px;
+	width:746px;
+	-moz-border-radius:2em 2em 2em 2em ;
+}	
+
+.main_help{
+	font-family : Arial,Helvetica; 
+	font-size:8pt; 
+	padding:2px;
+	background-color:#eeeeee;
+	border:1px solid #fffdf8;
+	color:#000000;
+	-moz-border-radius:0 0 2em 2em ;
+}	
+
+
+.main_detail{
+	font-family : Arial,Helvetica; 
+	font-size:9pt; 
+	padding:10px;
+	background-color:#ffffff;
+	border-top:8px solid #fffdf8;
+	-moz-border-radius:2em 2em 2em 2em ;
+}	
+
+.main h1{
+	font-family : Arial,Helvetica; 
+	font-size:14pt; 
+}		
+
+.main h2{
+	font-family : Arial,Helvetica; 
+	font-size:12pt; 
+}		
+
+.main thead{
+	font-family : Arial,Helvetica; 
+	font-size:9pt; 
+	background-color:#eceae0;
+	color:black;
+}		
+
+
+.list_edit_entry_head {
+ display:block;
+ padding:1px;
+ text-align:left;
+ color:#000000;
+ text-decoration:none;
+ font-family : Arial,Helvetica; 
+ font-size:8pt;
+ height:16px;
+ width:64px;
+}		
+
+.list_edit_entry {
+ /*display:block;*/
+ padding:1px;
+ border:1px solid #ffffff;
+ /*background-color:#c5e7ee;*/
+ text-align:left;
+ color:#000000;
+ text-decoration:none;
+ font-family : Arial,Helvetica; 
+ font-size:8pt;
+ height:14px;
+ width:160px;
+}		
+
+a.list_edit_entry:link, a.list_edit_entry:visited
+{ 
+ color:#000066;
+ /*background-color:#c5e7ee;*/
+ text-decoration:none;
+}
+a.list_edit_entry:active, a.list_edit_entry:hover
+{ 
+ color:#ff0000;
+ /*background-color:#fda711;*/
+}
+

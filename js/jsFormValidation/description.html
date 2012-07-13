@@ -1,0 +1,43 @@
+<b>jsFormValidation()</b> is a collection of JavaScript functions that limit user input into forms before they're submitted:<br>
+<br>
+Try some examples:
+<script type="text/javascript" src="/scripts/jsFormValidation/jsFormValidation.js"></script>
+<style>
+<!--
+INPUT.noenter {
+	background-color: #CCCCCC;
+	font-weight: bold;
+	color: #0000FF;
+}
+// -->
+</style>
+
+<table border="0">
+	<form>
+		<tr>
+			<td><b>Text only (person's name)</b></td>
+			<td><input type="text" name="Name" onKeyUp="RemoveInvalidChars(this, '[^A-Za-z \.\-]');" onFocus="HighlightThis(this);" onBlur="UnHighlightThis(this);"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><b>Phone number (123)456-7890</b></td>
+			<td><input type="text" name="Phone" maxlength="13" onKeyUp="FormatPhoneNumber(this);"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><b>Email address (lowercase)</b></td>
+			<td><input type="text" name="Email" onKeyUp="RemoveInvalidChars(this, '[^A-Za-z0-9 \_\@\.\-]'); ForceLowercase(this); if (IsValidEmail(this.value)) { this.form.EmailValid.value='valid'; SetElementTextColor(this.form.EmailValid, '#009900'); } else { this.form.EmailValid.value='invalid'; SetElementTextColor(this.form.EmailValid, '#FF0000'); }" onFocus="HighlightThis(this);" onBlur="UnHighlightThis(this);"></td>
+			<td><input type="text" name="EmailValid" class="noenter" size="5" tabindex="-1" onKeyDown="return false;"></td>
+		</tr>
+		<tr>
+			<td><b>URL (<i>http://</i> required)</b></td>
+			<td><input type="text" name="Website" onKeyUp="RemoveInvalidChars(this, '[^A-Za-z0-9 /:\_\.\-]'); if (IsValidURL(this.value)) { this.form.WebsiteValid.value='valid'; SetElementTextColor(this.form.WebsiteValid, '#009900'); } else { this.form.WebsiteValid.value='invalid'; SetElementTextColor(this.form.WebsiteValid, '#FF0000'); }" onFocus="HighlightThis(this);" onBlur="UnHighlightThis(this);"></td>
+			<td><input type="text" name="WebsiteValid" class="noenter" size="5" tabindex="-1" onKeyDown="return false;"></td>
+		</tr>
+		<tr>
+			<td><b>Hex Color (leading <i>#</i> required)</b></td>
+			<td><input type="text" name="HexColor" onKeyUp="RemoveInvalidChars(this, '[^#A-Fa-f0-9]'); if (IsValidHexColor(this.value)) { this.form.HexColorValid.value='valid'; SetElementTextColor(this.form.HexColorValid, '#009900'); } else { this.form.HexColorValid.value='invalid'; SetElementTextColor(this.form.HexColorValid, '#FF0000'); }" onFocus="HighlightThis(this);" onBlur="UnHighlightThis(this);"></td>
+			<td><input type="text" name="HexColorValid" class="noenter" size="5" tabindex="-1" onKeyDown="return false;"></td>
+		</tr>
+	</form>
+</table>

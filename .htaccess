@@ -1,0 +1,30 @@
+#these are exmple options for tellmatic
+#all options are disabled by default!
+# please remove the # sign in fron of a rule to make it active!
+#they are not enabled by default because they may make trouble in some systems, also you may need additional permissions from your webhoster to use some features of .htaccess
+
+#for security reasons deny access to .sql files
+#<Files ~ "\.(inc|sql|inc.php)$">
+# order allow,deny
+#deny from all
+#ErrorDocument 401 default
+
+#multpile php versions?
+#if your server supports multiple php verseions, like php4+5, you may need to enable this line to force the usage of php5 for .php extension
+#i saw this on some hosts which supports php3+4+5 in different versions and by default .php belongs to very old php3 for some reasons... 
+#to force usage of php5 with .php extension:
+#AddType application/x-httpd-php5 .php
+
+#deprecated! no more needed for tellmatic, we do no more use http auth method but sessions with php 
+
+#php cgi workaround
+#only needed for some misconfigured php cgi/fcgi installations
+#is php running as cgi? so http auth via php will not work on most providers due to misconfiguration!
+#rewrite engine must be enabled ...
+#<IfModule mod_rewrite.c>
+#RewriteEngine on
+#RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+#</IfModule>
+
+#if you want to know more about using .htaccess, there is a very good howto at: http://www.htpasswdgenerator.com/apache/htaccess.html
+#or http://de.selfhtml.org/servercgi/server/htaccess.htm#fehlermeldungen

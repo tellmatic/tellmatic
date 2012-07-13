@@ -1,0 +1,1237 @@
+/********************************************************************************/
+/* this file is part of: / diese Datei ist ein Teil von:                        */
+/* tellmatic, the newslettermachine                                             */
+/* tellmatic, die Newslettermaschine                                            */
+/* 2006/11 by Volker Augustin, multi.art.studio Hanau                            */
+/* Contact/Kontakt: info@tellmatic.org                                      */
+/* Homepage: www.tellmatic.org                                                   */
+/* leave this header in file!                                                   */
+/* diesen Header nicht loeschen!                                                */
+/* check Homepage for Updates and more Infos                                    */
+/* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
+/********************************************************************************/
+
+
+moved from cvs to git
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.9.0-rc1  +*+*+*+*+*+*+*+*+*+*+*+*
+	09.03.2011
+	
+	*** New features/enhancements:
+
+		* TM license changed/upgraded to GPL/AGPL! http://www.gnu.org/licenses/gpl.html / http://www.gnu.org/licenses/agpl.html 
+		* New language added: French
+		* form: select smtp host, fallback is default smtp host! if smtp_host_id=0		
+		* production groups: adr groups can be flagged as a production group. you can only send to production groups!
+			- mark adr group as production group, to send to, and to filter, in adr list mark with (p) /search, and add filter in adrgrp list.
+			- prod groups are used for delivery etc, intern noprod groups are for organizing, e.g. 3 groups, import1, import2, and prod group import_all
+
+		* send emails for doptin, greeting, update!:		
+			- forms/sub: select nl for optin, greeting, update: nl must be active and template and personalized!
+			subscribe procedure changed a bit: instead of using html templates or hardcoded textmessages for subscribe mail etc, tellmatic now uses predefined newsletter templates for sending subscribe, confirm, double optin and update messages/mails.
+						- forms/sub: select nl for optin, greeting, update: nl must be active and template and personalized!
+			- save greeting, double optin and update message in form, displayed after new subscription with/without doptin and/or update
+			- no more form_[id]_s/o/os needed, configure valid double optin mail, greeting mai land update mai lin form!!!11!!!11eleven!elf1
+				UPDATE all forms first! and test it!!!
+			- show success, show greeting, show update and confirmation using Form_[id]_success.html
+			- success, update and double optin message now also comes from db! as configured in the form! no more template, no more Messages.inc needed here for subscribe.
+			- Form_[id]_success.html is used to display form messages after subscription, doptin or confirmation!
+		* forms/sub: pgroup, multiple or only one!
+		* set std form, if use touch optin or no form id is defined, check and use default form.
+		* nl: parse subject! etc in send_it, subscribe, unsubscribe mit nl, etc! ueberall da wo parsenl auch benutzt wird..., new method! view.php too!
+		* Restart finished Q's with failed and skipped/canceled records. (set status 1 to nl_h  where status = 4|6 failed/canceled and q_id=, set q to status 1 (new))				
+		* completely removed zend compat mode, tellmatic should be ready for php 5.3 now		
+		* proofing, db preparation, class update: new qualitycheck feature coming soon!
+			- added config options in admin settings
+					proof: global enable/disable
+					proof_url: url for proofing
+					proof_trigger: min adr count before proofing starts
+					proof_pc: how many percent should be proofed
+			- queue, history: do proof option
+					show icon in list (gold medal)
+					nl_q: column proof is 1 if proofing enabled
+					nl_h: column 'proof' contains return value from proofing (if enabled etc)
+			- import: proof: add checkbox in import form 
+			- forms: proof checkbox f. forms, db, (proof all new subscribed adr, no trigger/pc used)
+			- show icon in form list + legende (gold medal)
+			- queue: proof
+				show icon in list + legende (gold medal, gold_medal_1.png)
+				nl_q: column proof is 1 if proofing enabled
+				nl_h: column 'proof' contains return value from proofing (if enabled etc)
+
+		* address sources - in the next releases this is used to save the source key of an entry, e.g. "user" (manual entry), "form","import","subscribe", "sync" or "extern", external id and so on
+			  "extern" is for user defineable sources, your own scripts and so on
+			  "sync" is ment to log data from the upcoming external-data sync feature (to sync address records between cms, shop, etc with tellmatic)
+  			- sync sources will be a new feature in upcoming releases which allows you to conect to external db datasources like your blog, cms, crm tool, shop or whatever 
+	  			new column source_id in table adr contains the id of the source: user_id, form_id or sync_id for external tellmatic built in database sources...
+				source_extern_id contains the original id in the external database!			
+				source_id is user_id on import , or form_id on subscribe!
+				source_extern_id is 0 on import
+				source/_id/extern_id is only set for new entries! not updates! updates may change source if sync feature is used! 
+
+		* q: prepare db for touch optin option
+		* admin settings/unsubscribe: unsubscribe action: added: blacklist / blacklist & delete
+			- addresses now can be unsubscribed, deleted, blacklisted or blacklisted and deleted on unsubscribe, used for global setting at this time, later we will have configurable unsubscrbe forms and a user frontend to change subscriptions				
+	
+	
+	*** Enhancements:
+		
+		* import: create new group while importing and merge with optionally selected groups. 
+		* set std form, if use touch optin or no form id is defined, check and use default form.
+		* admin settings/unsubscribe: unsubscribe action: added: blacklist / blacklist & delete
+			- addresses now can be unsubscribed, deleted, blacklisted or blacklisted and deleted on unsubscribe, used for global setting at this time, later we will have configurable unsubscrbe forms and a user frontend to change subscriptions				
+		* New language added: French
+		* form: select smtp host, fallback is default smtp host! if smtp_host_id=0		
+		* import: create a new group and merge with selected groups (optional)
+		* subcribe: wenn frm descr empty, dann nihct anzeigen
+		* q_list: link zu adr in gruppen bei klick auf gruppenname, adr_list&adr_grp_id
+		* logout link at top of menu
+		* use E_STRICT		
+		* PHP>=5.3: split is outdated! use preg_split or explode instead		
+		* q-list: now shows status more detailed, also skipped adr etc are counted
+		* TM_VERSION etc: are now constants, replace vars with constants! see tm_version.inc.php
+		* adr_list: mark unsubscribed adr in different color
+		* typo: corrected typo: Poruguese vs. Portuguese 
+
+		* subcribe: wenn frm descr empty, dann nihct anzeigen
+		* nl_form: legende is now own file, 		* nl_form_legende shows new link syntax with optional parameter
+		* tm_lib: define TM_PHP_LOGFILE
+		* show new link syntax with optional parameter in nl-variable legend		
+		* admin settings: allow syntax & syntax/dns check for check_it
+		* DEBUG: debug language/translations: DEBUG_LANG,TRUE , DEBUG_LANG_LEVEL, 1|2|3 marks words, shows list or both		
+		* Main.inc: show last xx loglines, tail function! (admin only) new function mtail()
+		* nl: new var, {SUBJECT} replaced by subject via parse_Subject()
+		* nl: new var  {GROUP} (shows public group references for adr record)
+		* send_it: add new mail header:  List-Unsubscribe: <http://......../unsubscribe.php?>
+		* wysiwyg: add tellmatic menu for inserting variables like {DATE} etc. with a mouseclick
+		* hosts: add optional delay/pause (microseconds) between two mails when sending out newsletter
+		* DATE in newsletters will be replaced by send_at date from queue. not current date!
+		* add a warning at install routine if config file already exists
+		* config: select default style 
+		* config: select default language (used by login mask, unsubscribe and forms)
+		* config: select host for unsubscribe messages
+		* config/user: select startpage shown after successfully logged in
+	
+	*** Code changes / Optimizations:			
+		
+		* hosts: max_mails_bcc always 1, changed host_form and install
+		* split xxx_form.inc.php into xxx_form.inc.php and xxx_form_show.inc.php
+			xxx_form_show creates the rendered output. xx_form is to set up fields.
+			in list forms, we have to start the form rendering in _form, continue in _list and finish in _form_show  
+		* Class_NL addNL returns new nl id
+		* Class_NL addGrp returns new group id
+		* install.php: split into install.php and include/install/install.inc.php
+		* install: add install_examples_conf 
+		* use E_STRICT		
+		* PHP>=5.3: split is outdated! use preg_split or explode instead		
+		* TM_VERSION etc: are now constants, replace vars with constants! see tm_version.inc.php
+		* adr_list: mark unsubscribed adr in different color
+		* typo: corrected typo: Poruguese vs. Portuguese 
+		* subcribe: wenn frm descr empty, dann nihct anzeigen
+		* nl_form: legende is now own file, 		* nl_form_legende shows new link syntax with optional parameter
+		* tm_lib: define TM_PHP_LOGFILE
+		* DEBUG: debug language/translations: DEBUG_LANG,TRUE , DEBUG_LANG_LEVEL, 1|2|3 marks words, shows list or both
+		* nl: parse subject! etc in send_it, subscribe, unsubscribe mit nl, etc! ueberall da wo parsenl auch benutzt wird..., new method! view.php too!
+		* completely removed zend compat mode, tellmatic should be ready for php 5.3 now
+		* if DEBUG us enabled, TM uses tm_debugmessage to format nicer output.		
+		* bounce_filter_adr_list.inc.php used hardcoded image urls, now unsing tm_icon function
+		
+	*** fixed Bugs:
+			
+		* fixed: hide info fenster at logout will hide the login link too ;)
+
+		1089 - 1090:
+		*	3121248  	 Invalid From-Address
+			https://sourceforge.net/tracker/?func=detail&aid=3121248&group_id=190396&atid=933192
+			$from addess in bouncemanagement not set if email is invalid, e.g. Mailer Daemon etc
+		*	3114589  	 GeoIP
+			https://sourceforge.net/tracker/?func=detail&aid=3114589&group_id=190396&atid=933192
+			error where geoip can not determine ip of user
+		*	3114571  	 Vermeiden von unnötigem Output in den Errorlogs
+			https://sourceforge.net/tracker/?func=detail&aid=3114571&group_id=190396&atid=933192			
+			fix some warnings 
+		*	3114550  	 Special Chars in Statistics, converted to HTML Entities
+			https://sourceforge.net/tracker/?func=detail&aid=3114550&group_id=190396&atid=933192
+			add new parameter to ___() function, if 0, do not use display() function in return value		
+			add new param 0 to Stats.inc.php and use display where status is printed out
+		*	errno:8 | errtype:Notice	errmsg:"ob_flush(): failed to flush buffer. No buffer to flush."	errfile:include/send_it.php	errline:78
+		*	3106176  	 Missing initialization of $_MAIN_DESCR
+			https://sourceforge.net/tracker/?func=detail&aid=3106176&group_id=190396&atid=933192
+		*  3106166  	 Missing initialization of $search_log
+			https://sourceforge.net/tracker/?func=detail&aid=3106166&group_id=190396&atid=933192		
+			should be fixed, gives a warning if no obj index is defined			
+			errmsg:"Undefined index:  object";
+			errfile: include/log_summary_section.inc.php
+		*  3106156	https://sourceforge.net/tracker/?func=detail&aid=3106156&group_id=190396&atid=933192
+			form_list, in mouseover werden keine gruppen mehr angezeigt, weird!!! OK,  public_frm_ref in group wurde gegen frm_id gecheckt statt public flag in frm_ref
+		* 3106156  	 Wrong database query for (non-)public groups of forms 
+			BUG: forms: form_form: pubgroups werden nihct markiert, stattdessen werden die globalen gruppenlinks markiert? hä? OK,  public_frm_ref in group wurde gegen frm_id gecheckt statt public flag in frm_ref
+		 	https://sourceforge.net/tracker/?group_id=190396&atid=933192
+		*  3106138  	 Blindimage description, not really a bug.
+				https://sourceforge.net/tracker/?func=detail&aid=3106138&group_id=190396&atid=933192			
+				alt text is now parsed subject
+		*	3106130  	 Date not inserted in unsubscribe notifications
+			https://sourceforge.net/tracker/?func=detail&aid=3106130&group_id=190396&atid=933192
+		*	3106121  	 Missing notification mail address in subscribe notifications
+			https://sourceforge.net/tracker/?func=detail&aid=3106121&group_id=190396&atid=933192
+		*	3106111  	 Wrong activation link for double opt-in
+			subscribe rewritten,now uses newsletters for notification mails
+		* nl views/clicks was not reset to 0 if nl was copied! nl with currently 0 views in nl_h will show old values from copied newsletter.
+		* mit jeder mail wird neuer connect aufgebaut trotz bulkmail=1, liegt an neuem object, stattdessen bulkmail und replace part von mailklasse nutzen!!! kein neues object erzeugen. das liegt daran da das obj. fuer mail jedesmal neu instanziert wird statt altes zu nutzen und zu resetten und neuen body, neuen header zu nehmen.
+		* send_it: finally fixed bug where blacklisted adr gets marked errorness and failed. Use status 'canceled' instead
+
+
+
+	*** Known Issues:
+		no known critical issues yet, you may want to visit the bugtracker ;-)
+		here and there eregi is still used.....
+		
+	*** Upcoming / Future Plans:
+		many!
+		finish prepared new features
+	
+
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.9  +*+*+*+*+*+*+*+*+*+*+*+*
+	26.09.2010
+	
+	*** New features/enhancements:
+		
+	*** Enhancements, Code changes / Optimizations:
+		* Skip existing Adresses on Import!
+		* Wysiwyg: TinyMce only creates xhtml/xml headers. Sucks a bit, theheader is a bit buggy too, so i get rid of the fullpage plugin and add my own header!
+			Tinymce still /> at end of some tags, but this is only a warning and still valid HTML! :P
+			The HTML-Header and Footer is defined in tm_lib.inc.php at top of file!
+			You are a HTML Expert? Please Contact me (and make an irc meeting) to help me creating valid HTML or XHTML etc ;)
+			https://sourceforge.net/tracker/index.php?func=detail&aid=3034254&group_id=190396&atid=933192
+			http://tinymce.moxiecode.com/punbb/viewtopic.php?id=22749
+		* Class_Q: addHQ: add more indexes in temporary table, speed up next query by ~10%
+		* Queue-List: Show % done (%done total, %done-OK, %done-with-Failure, %done-current-with-Failure)
+		* NL: nl_group_list: Count Newsletters/Templates
+		* Linkmanager: add parameters to anchor tag. Separated by comma: e.g. {LNKID:5,style="color:#ff0000"}
+		 
+	*** fixed Bugs:
+	
+		* Queue: If Q was stopped/paused it was not possible to refres rcpt-list, should be possible
+				addHQ: also allow q-status 5
+		* parseNL: Use &amp; instead of &-char in URLs
+		* Forms: Description gets HTML Translated on edit: https://sourceforge.net/tracker/index.php?func=detail&aid=3034254&group_id=190396&atid=933192
+		* NOT A BUG: !! only Old Buggy Outdated Mysql 4.0 problem :P  https://sourceforge.net/projects/tellmatic/forums/forum/670073/topic/3832837
+			Soluiton for buggy/old mysql4: remove fieldnames and indexes from create temporary  table in ClassNL::addHQ and let select do the stuff, weird mysql!!! 
+		* bounce_it.php: fixed:
+				Parse error: syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting ',' or ';' in /homepages/44/d65929952/htdocs/Diskus/newsletter/include/bounce_it.php on line 183
+		
+		* Forms: Subscription Form showed non-Public Groups! fixed.
+		* 'host name parts in urls caused failure in complex environment'
+			https://sourceforge.net/tracker/?func=detail&aid=2860042&group_id=190396&atid=933192
+		* links: shortname too short (was 16, 48 chars are allowed)
+
+		
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.8  +*+*+*+*+*+*+*+*+*+*+*+*
+	09.07.2010
+	
+	*** New features/enhancements:
+	
+		* View newsletter online (massmail & personalized)
+			Newsletters can now be shown online.
+			Tellmatic does no more make use of the statical parsed html file.
+			The file is still created but only ment as a vague preview of your newsletter.
+			Tellmatic now uses view.php and the new parseNL method to parse Newsletters on the fly (but still using text or html template files)	
+			Newsletters are only shown if newsletter is a massmail or if newsletter is personalized and all values and parameters are valid.
+			If all parameters are correct and valid and come from a valid personalized newsletter, a personalized version is created and shown on the fly.
+			If the content type of newsletter is text only, a textversion will be shown.
+			The Newsletter is only shown if it is active and not a template.
+			Personalized Newsletters are only shown if: newsletter is active, not a template and all parameters are valid and address is not unsubscribed and active, also we need a valid history entry, if you delete the history, a personalized newsletter wont be shown!
+			{NLONLINE} and {NLONLINE_URL} now points to view.php
+			
+		* Linkmanager:
+		
+			Tellmatic comes with a new linkmanager.
+			You can create Link Groups and Links belong to one or more Link Groups.
+			Links can be personalized. If you have a personalized mailing, {F0}-{F9}, {EMAIL}, {DATE}, {CODE}, and {ADRID} in the URL are replaced with the values from the current address record.
+			Link URL can also start with #, then it dont get parsed (can be used as link inside current document, with groups you can easily create an index!)
+
+			* Short: shortname for link, should be unique and not numeric.
+			* Name: A name for the link
+			* Description: A brief description (shown as title on mouseover or in textmode)
+			* URL: a valid URL, start with http://, can be personalized, see above, if URL starts with # it doesn't get parsed
+
+			New Variables for Newsletter:
+					* {LNK:[short]}
+							e.g.: {LNK:test}
+							create a link from link with shortname="test"
+							<a href= ....>[name of link]</a>
+					* {LNKID:[id]}
+							e.g.: {LNKID:1}
+							same as above but uses link id
+							
+					* {LNK_AHREF:[short]}
+							e.g.: {LNK_AHREF:test}TEST{CLOSELINK}
+							create <a href= ....> from link with shortname="test" without name and closing </a>, you have to use {CLOSELINK}
+					* {LNKID_AHREF:[id]}
+							e.g.: {LNKID_AHREF:1}
+							same as above but uses link id
+
+					* {LNK_URL:[short]}
+							e.g.: {LNK_URL:test}
+							create URL to click.php?+parameters from link with shortname="test"
+					* {LNKID_URL:[id]}
+							e.g.: {LNKID_URL:1}
+							same as above but uses link id
+
+					* {LNK_URLRAW:[short]}
+							e.g.: {LNK_URLRAW:test}
+							create URL to raw URL as given in link with shortname="test"
+					* {LNKID_URLRAW:[id]}
+							e.g.: {LNKID_URLRAW:1}
+							same as above but uses link id
+
+					* {LNKGRP:[kurz]}
+							e.g.: {LNKGRP:infos}
+							creates a small header with group name and description and a list of links which belong to group with shortname="infos"
+					* {LNKGRPID:[id]}
+							e.g.: {LNKGRPID:1}
+							same as above but uses link group id
+			Notes:				
+				Links and link groups are only shown if active.
+				The Linktracker does some nice click tracking but may make heavy use of the lnk_click table which can get very huge in some cases.
+				There is no statistics yet. Clicks get saved in the lnk_click table and data for statistics are available at this time but not shown on the statistics page or status etc. (if you need statistics you have to do your own SQL)
+				Statistics and Reports come in the next release.
+				Statistics can't be deleted yet, there will be functions to clean up clickstats in the next releases. 
+				IP is logged, unique key for table lnk_click is lnk_id,nl_id,q_id,a_id,h_id,ip, insert on duplicate keys will only increase the counter (clicks)				
+				LINK1 and LINK1_URL are still available and won't get removed.
+			
+		* Logging:
+			Added global logging mechanism. logs all changes to database.
+			To deactivate the logbook set TM_LOG to FALSE in tm_lib.inc.php (TRUE, >=	 1.0.8.8)
+			All actions in the admin interface are now logged (adr,nl,blacklist,config,forms,hosts,users,q/h), except selects and views. (Logging is enabled for creation, edit and delete only), some actions only add a memo (e.g. when cleaning up database only the action and filter is saved)!
+			If you are an admin user you will see 2 new links. the top link is for current section. the link on bottom shows all entrys in logbook.
+			Each Entry now also have a Link to show logbook entries.
+			Try it out, works great.
+			A nice feature also is that all edited data gets logged too and if you delete an item its values are also logged..... ;-) 
+			Logbook can be searched, filtered and flushed, or only delete a selection....
+			It may be possibility to replay changes and save old/new data, but this is not implemented yet.
+					
+		* Check for duplicates
+			Tellmatic now has some methods to check and remove duplicates from the database.
+			Clean Up Form now has option to remove duplicates (from all groups). You can choose what entry you like keep in database (first/oldest, last/latest, random).
+			Duplicates can be exported before deletion.
+
+		* Import domains to blacklist:
+			domains can now be imported to the blacklist via the address import form.
+
+		* enable/disable personalized tracking (now an opton in newsletter)
+			if personalized tracking is disabled Tellmatic does only anonymous logging (newsletter id, queue id, but no adr id and history id)
+		* export bounced / deleted addresses
+			bounce_it.php now exports deleted address records as CSV.
+	
+	*** Enhacements, Code changes / Optimizations:
+	
+		* adr: added genCSV() method to create CSV lines
+		* send_it.php now uses new parser method parseNL() for newsletter parsing.
+		* send_it.php logfile created on the fly, format changed, use unique timestamp, easy to tail -f. extension is still .html but contains only plaintext
+		* send_it.php: now detects if run via browser or cli
+		* slightly adjusted php error logfile format
+		* Classes now always return siteid in array for get methods!
+		* Parser for Newsletter parseNL()
+		* use sendmail_smtp function (host_test, subscribe, unsubscribe, send_it status mails)
+		* addClick, addView, addSub, addNL methods in tm_NL/ADR/FRM now use simple sql to increase counters! no more fetching record record first and increase via php and do an update :P
+		* queue_new: show only groups with valid addresses
+		* queue_new: sort newsletter, latest on top 
+		* queue_new, queue add link in nl_list: only show nl/link if all tempates exists
+			https://sourceforge.net/tracker/?func=detail&atid=933192&aid=2971854&group_id=190396
+		
+	*** fixed Bugs:
+	
+		* sendmail_smtp/functions.inc: missing parameter: 
+			$email_obj->maximum_piped_recipients=$HOST_T[0]['smtp_max_piped_rcpt'];
+			SendMail_smtp: now return array [0]: true/fale [1]: errormessage if false or empty
+			This could lead in an error on subscribe/unsubscribe if smtp server uses tarpiting or greetdelay or teergrubing etc in some rare cases.
+		* class_adr: getGroup:if ($adr_id >0) { should be check_dbid()
+		* php_error: closedir(): supplied argument is not a valid Directory resource, /include/Functions.inc.php line 238
+		* nl_form: php_error: basename() expects parameter 1 to be string, array given include/nl_form.inc.php line 123, fixed: if not empty....
+		* nl_form: array sizes inconsistent: btsort was not resettet as empty array
+		* php_error: mysql_free_result(): supplied argument is not a valid MySQL result resource include/Class_DB.inc.php line 148 after operation
+			only call free() method if we read big datasets or if we have limited memory.
+			deactivated free() and call manually after select
+		* send_it: blacklisted is not an error. if blacklisted status 4 was set but should not change status at all. so we can use blacklist temporaryliy
+			https://sourceforge.net/tracker/?func=detail&atid=933195&aid=2971858&group_id=190396	
+		* queue_new: after adding new queue: PHP Error 2/Warning "mysql_num_rows(): supplied argument is not a valid MySQL result resource" in File: Class_DB.inc.php  at Line: 278
+		* check_it: missing $ and ; 
+			https://sourceforge.net/tracker/?func=detail&atid=933192&aid=2962261&group_id=190396
+		* Functions.inc.php: checkemailadr: missing $from parameter for validate
+		* export: english translation says import!
+		* https://sourceforge.net/tracker/?func=detail&atid=933192&aid=2958182&group_id=190396, first, lastURLpara unknown notice.... link pager doesnt work !
+		* bl_list: unknown object, unknown entrys_total
+		* newsletter subject variables were not replaced if nl was massmailing
+		* etc.
+
+		and maybe some more optimizations and bugfixes not listed here.....	
+		see ChangeLog for more Details		
+
+	*** Known Issues:
+	
+		* Tellmatic <= 1.0.8.8 does not work with PHP >=5.3
+			The PHP guys removed the zend.ze1_compatibility_mode directive (object values vs. references) which is still needed in Tellmatic <= 1.0.8.8
+			Tellmatic was developed using PHP4 and still uses some backward compatibility settings.
+			At this time, PHP 5.3 is quite new and mostly used on testing distributions, stable linux servers may still use PHP 5.2
+		* Yes! there is still no online documentation. This is a heavy job, coding is much easier and more exciting yet.
+		* Still using very outdated filemanager... Use at your own risk! You better use FTP!!!
+		
+	*** Upcoming:
+	
+		* Filemanager?
+		* Documentation online?
+		* All or most of improvements i mentioned above (Statistics etc).
+		* Get rid of zend compat mode, prepare for PHP 5.3 (need tester and free hosting with php5.3!!!!)
+		* Welcome newsletter (personalized newsletter send out on subscribe, unsubscribe...)
+		* User definable variables
+		* Languages (define languages, set nl lang, user may choose on subscribe)
+		* Content type (user may choose on subscribe text/html)
+		...and more
+
+		You can always donate to speed up development and esp. creation of a nice documentation ;) http://www.tellmatic.org/donate
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.7  +*+*+*+*+*+*+*+*+*+*+*+*
+	23.2.2010
+	
+	*** New features/enhancements:
+		
+		- Since 1.0.8.7 Tellmatic has 2 new scripts you can start manually via the menu or with cronjob
+			pleae read the INSTALL.xx file!
+			- automagic bouncemanagement:
+				include/bounce_it.php
+				This script opens a mailbox on the selected server and checks for bouncemails, fetch emailaddresss and do something with it (action) 
+				Automagic bouncemanagement behaviour can be configured in the admin - settings menu (see below)
+				The script adds a memo  with debug info if an address fails and exports bounced addresses to a file in the files/import_export directory
+			- quality check/address validation:
+				include/check_it.php
+				This Script validates flagged/marked email addresses and optionally set new status, etc. 
+				Behaviour can be configured in the admin - settings menu (see below)
+				The script adds a memo  with debug info if an address fails			
+				Class_ADR.inc.php: tm_ADR->markRecheck()
+		- check e-mail-addresses:
+			check/validate email addresses via link from list (the new spellcheck icon)	or via form below adr list (also choose from syntax , mx/dns or validation)
+			a click on the spellcheck icon gives some more debugging results
+		- unsubscribe: send e-mail to un-subscriber (optional - see settings). Template is: tpl/Unsubscribe_mail.html
+		- newsletter: memo is now a variable for the newsletter: {MEMO}
+		- Admin - Settings:	New Options for unsubscribe, auto-bounce, validation script and send routine:
+			- send_it: 
+				- choose e-mail check method
+			- unsuscribe:
+				- unsubscribe: use captcha: default 0/disabled
+				- unsubscribe: how many captcha digits: default 4
+				- unsubscribe: send memo to un-subscriber: tpl/Unsubscribe_mail.html
+				- unsubscribe: choose action: unsubscribe (set status and deactivate entry) or finally delete from database (no undo)?
+			- check_it:
+				- choose e-mail check method
+				- validate email-from-addres: address to check via validation script. use sender address of default  host if empty 
+				- mark as ok if address was errorness (status 9, a-error)?
+				- reset error counter if address check was successful?
+				- set limit on how many addresses should be checked on each run: default 25		
+			- bounce_it:
+				- bounce method (body, header etc), action: move, delete, auto, unsubscribe etc
+				- select pop3/imap host
+				- set limit on how many emails should be checked at once: default 10
+				- select search method: header and body, only body, only header
+				- choose action: auto , mark as errorness/failed, unsubscribe and deactivate, deactivate, delete
+				- filter emails, only search mails to from: address: default 0
+				- from_address for filter: default ''
+		- import: mark for recheck/validation
+		- send_it, check_it and bounce_it have now links in menu and will not be called directly! Instead a page with some hints will be shown and a link to load the script directly in the browser.
+		- create new Item: add some default values/errormessages in current language in all forms when creating a new entry (adr, form, nl, etc)
+		- rechecked tab index in all forms 
+		- adress list: shows summary of total addresses and per selected and marked/deactivated entries
+		- search adresses: filter for active addresses
+		- clean up database now has an option to mark addresses for validation/recheck using check_it.php
+		- clean up database disables unneeded inputs depending on what action you select (as in import, hosts etc)
+		- clean up database now shows amount of marked addresses for recheck, total and for each group, and deactivated addresses
+	
+	*** Code changes / Optimizations:
+		- install: safemode warning is now info!
+		- Functions: validate_email: fsockopen now has timeout and errno
+		- Functions: validate_email: error 4xx should be no address-error but send error (greylisted, deferred, temp error)
+		- unsubscribe: should only check for syntax, not mx/dns or validate, now only checks for syntax!
+		- error_reporting: disabled notices because auto bouncemanagement may have 0 mails and this gives a notice in the php logfile.if you run the script often and there is an empty mailbox this would lead to a logfile with a few hundreds MB... :>
+		- Functions: validate_email: from-address is now sender address of default/selected host.
+		- Funktions: validate_email: accepts $from addres, or use default from default/selected host if empty
+		- send_it: add memo if address check fails
+		- default for USE_TMP_HTML_FILES is TRUE, make sure admin/tmp is writeable by the webserver. To disable feature, set USE_TMP_HTML_FILES to FALSE in tm_lib.inc.php
+
+	*** new API examples:
+		- api_example_dev_001.php:
+			list addresses which are in more than one group
+		- api_example_dev_002.php:
+			show a list of newsletters					
+		- api_example_dev_003.php:
+			shows a list of already send newsletters (get nl list from q instead of nl)
+		- api_example_dev_004.php:
+			output list of archived newsletters to a rss-xml file
+		
+		Note: remove exit command at top of file!
+
+	*** fixed Bugs:
+		- subscribe.inc.php: c= was not code= in 1086, fixed now. Now using $code instead of $c
+		- install: files/tmp was checked twice
+		- https://sourceforge.net/projects/tellmatic/forums/forum/670072/topic/3539879/index/page/1
+			subscribe.inc.php date_sub for mail and template should be formatted by TM_NL_DATEFORMAT
+			$date_sub=date(TM_NL_DATEFORMAT);
+		- DEBUG_SQL had no effect using temp html files. now debug output/queries is included in $_MAIN_MESSAGE 
+		- export: in 1086, if status was choosen as a filter, there was no export. this was because of a change in the api, weird bug, weird php....
+		- validate email now uses default host or given host
+		- unsubscribe:  typeNotice Undefined variable: author , file:include/unsubscribe.inc.php
+			author is now "unsubscribe"
+		- send_it: 732: undefined var a_error, h_error: fixed
+		- send_it: 634:  undefined index summary
+	 	- UPDATE: ALTER TABLE `nl` ADD `is_template` TINYINT(1) default 0 after `track_image`, was "tracking_image"
+		- Functions.inc.php: typeNotice Undefined index:  HTTP_X_FORWARDED_FOR include/Functions.inc.php line 303
+		- send_it: h entry should not be marked as errorness if entry has already been processed....!
+			Not a critical bug :) just the results in the statistics are a bit messed up. The error counter for the newsletter queue had some false results! now fixed.	now the entry is skipped and status is not changed!
+			
+			
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.6  +*+*+*+*+*+*+*+*+*+*+*+*
+	06.01.2010
+
+	Sorry, still no new filemanager, hopefully coming soon. 
+	Sorry, still no working online documentation.
+	Your donations are welcome. i can not do this without your help.		
+		
+	Some of the new festures n 1.0.8.6, like title, sub-title and summary in newsletters were sponsored by Schroewig News and Images Berlin (www.schroewig.com)		
+	As usual, i tried to implement new features in a way so that new functions will be useful for everyone not just for the sponsor.
+		(This is why sponsors would never pay the whole work, just a few bucks.
+		so... if you need some special features, please ask, its not that expensive as you think)
+		
+	Additionally i decided to add the 'uploaded image resize and watermark' function permanently to Tellmatic.  
+	I also added some new api examples to demonstrate the new festures for displaying newsletters summaries on a website		
+	
+	Wichtiger Hinweis fuer Newsletterversender aus dem deutschen Raum:
+	"Das LG Heidelberg hat in einer aktuellen Entscheidung (LG Heidelberg, Urt. v. 23.09.2009 - Az.: 1 S 15/09)
+	noch einmal bestätigt, dass das Confirmed-Opt-In-Verfahren bei E-Mail-Werbung unzureichend ist, um einen Missbrauch zu vermeiden."
+	Quelle: http://www.online-und-recht.de/urteile/Confirmed-Opt-In-Verfahren-nicht-geeignet-um-Missbrauch-zu-verhindern-1-S-15-09-Landgericht-Heidelberg-20090923.html
+	
+	*** New features/enhancements:
+		* Newsletter: added Title, SubTitle and Summary
+			These new fields are mainly used to show a quick summary of the newsletters on your website.
+			title, title_sub and summary
+			for an example please see api_example_dev_02.php
+			there are 3 new variables for this fields you can use in your newsletter body too:
+			{TITLE} to show the title text
+			{TITLE_SUB} to show the subtitle text
+			and
+			{SUMMARY} to show a quick summary
+			the fields title and subtitle are below the subject field and summary is hidden below the html body textarea.
+			to enter a summary you can use wysiwyg too.
+			summary and titles are not parsed! no {} variables available yet.
+			be careful using a html formatted summary in text body, if you want to use {SUMMARY} in a text body, you should write plain text only in the summary.
+			if you have a plaintext summary for text body and want use it in html body too, just put a 'pre' tag around it. 
+
+			added 3 new database fields in newsletter table: 
+				title varchar(255)
+				title_sub varchar(255)
+				and
+				summary longtext
+			
+			This feature was sponsored by SCHROEWIG News & Images (http://www.schroewig.com)
+			If everything goes well, this is the first step in implementing a complete news-system and some frontend (...write some news and make a newsletter form it.)
+
+		* Newsletter templates: save newsletter as a template to create new newsletters from it (e.g different predefined layouts).
+			activate 'template' checkbox at top of newsletter form to make a newsletter a template.
+			templates can't be send or queued.
+			to see your newsletter templates and create a new newsletter from one of your templates, 
+			just click on 'templates' in the menu (newsletter section) and copy the template by clicking on link on the right side
+			to show actions and choose copy, or copy+files.
+			if a template is copied, it is no template by default and the normal list will shown up listing only newsletters which are no template.
+			if you create a newsletter and make it a template, after saving the list of templates will be shown and vice versa.
+			for this, i added a new menu entry and 2 new parameters $search to countNL() and getNL() method in the class and a new method 
+			set_as_template() whichis not used yet. 
+			new database field was added in newsletter table:
+				is_template tinyint(1)
+			
+			see also code changes.
+			
+			This is almost the same as copying already created newsletters, but flagging it explicitely as a template makes handling much easier. 
+
+		* Newsletter: uploaded image can be resized and watermarked.
+				* only jpegs can be resized and/or watermarked (no check for imagetype, jpeg only for now)
+				* resize is first
+				* watermarks can only be png files. default is watermark.png in /img directory
+				* resulting image is always jpeg
+				i could add a lot of more features just for the uploaded image, but that would be a bit overloaded!
+				image functions and uploading images with some more features will go to the "coming soon" universal Tellmatic filemanager.
+
+					
+		* search Addresses is now a Menu Entry giving a blank search mask without showing an initial list (parameter: no_list=1)
+		* optionally save address search parameters in session cookie (fixed some issues here for saved session paras)
+		* added link in address search mask to reset saved cookie search parameters
+		* pager now shows links to pages, start and end of list		
+		* inactive address group names are now shown in red (address list)
+		* if address list is empty after searching for an email, add link to create a new address entry with given email		
+
+		...Sorry, filemanager still not finished :( lots of work!
+				 
+	*** Code changes / Optimizations:
+		* Newsletter: 
+			added search parameter (array) in getNL() and countNL()
+			'status', 'aktiv', 'is_template'
+			for now its only used to filter templates and for status in your frontend maybe ;-) see api examples
+				function getNL($id=0,$offset=0,$limit=0,$group_id=0,$return_content=0,$sortIndex="",$sortType=0,$search=Array())
+				function countNL($group_id=0,$search=Array())
+			added new method set_as_template() - not used yet, just for completition and later use.
+		
+		* Newsletter recipient name: parse and replace {EMAIL} with recipients email.
+			BE CAREFUL! i got trouble using emailaddresses in recipients name. may lead into malformed email! just for testing.
+		 
+		* moved loader bar, changed css in all templates, sorry, debug window may still popup...
+		* subscribe.inc.php, send_it.php, unsubscribe.inc.php, unsubscribe_form.inc.php: changec $c to $code
+		* Functions.inc.php new functions: watermark(), createThumb()
+		* Class_NL, Class_ADR: filter search for status accepts array for OR search
+
+	*** Bugs fixed
+		wysiwyg: fixed wysiwyg advanced theme. didnt work with gzipped js..., fallback to standard js script
+		wysiwyg: fixed some stuff with default language in editor		
+		Undefined index: HTTPS in include/tm_config.inc.php on line 3, fixed. 
+		getDomainName: returns error if [1] not set, check with isset. only occurs if syntaxcheck is disabled: Functions.inc.php
+		newsletter groups: do not 'translate' html entities for description. old bug. fixed.
+		unsubscribe: email still in textfield after succesfull unsubscribe. now field is empty.
+	
+
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.5  +*+*+*+*+*+*+*+*+*+*+*+*
+	10.07.2009
+	This is an enhanced version of 1.0.8.4.
+	
+	*** New features:
+	- added link to create new address entry if search results in an empty list. the selected group in the search form and email is filled in into thhe fields in the address form.
+		this is useful if you search for addresses to check f they exist, and then if not exists easily add the address with one click. makes entering emails manually a bit faster.
+	- write output to temporary files in 'admin/tmp'. to use it, set USE_TMP_HTML_FILES to TRUE in tm_lib.inc.php. 
+		if enabled all temporary files in admin/tmp older than 3 seconds gets deleted on page load.
+		if enabled and DEBUG set to TRUE, files don't get deleted!
+	- doc: added link to online documentation on tellmatic.org, docu is still under construction!			
+	- mail: added additional headers in newsletter mails: X-TM_NLID: Newsletter ID, X-TM_QID: Queue ID, X-TM_AID: Address ID, X-TM_ACODE: Address Code, X-TM_DATE: Date sent, X-TM_MASSMAIL 0=personalized/1=massmail
+		(ACODE, AID only available in personalized newsletters!)
+	- hosts: add presets to imap/pop3 options in host form! Added selectbox to select options from list. Selected option gets copied to textfield, on save the leading / is removed
+		https://sourceforge.net/tracker/?func=detail&atid=933193&aid=2767032&group_id=190396
+	- unsubscribe: personalized unsubscribe. If address id and code matches the email gets prefilled in the textfield.
+	- unsubscribe: added Captcha check for unsubscribe form
+			in Messages.inc.php: 
+				$MSG['unsubscribe']['invalid_captcha']="Ungültiger Code!";
+				#en: $MSG['unsubscribe']['invalid_captcha']="Inavlid code!";
+			in tpl/Unsubscribe.html: 
+				{FCAPTCHAIMG}{FCAPTCHA}
+	- forms: let admin choose if a subscriber is forced to select at least one public group if there is at least one public group to choose from ;)
+		SQL UPDATE:
+			ALTER TABLE `frm` ADD `force_pubgroup` SMALLINT( 1 ) NOT NULL DEFAULT '0' 
+			AFTER `check_blacklist`;
+			ALTER TABLE `frm` ADD `pubgroup_errmsg` VARCHAR( 255 ) NOT NULL DEFAULT '""' AFTER `blacklist_errmsg` ;
+	- forms: let admin choose what happens on update with public groups. overwrite references or only add new refs?
+			//in upcoming versions a recheck is send/shown to the user to review data and selections.
+			SQL UPDATE:
+			ALTER TABLE `frm` ADD `overwrite_pubgroup` SMALLINT( 1 ) NOT NULL DEFAULT '0' 
+			AFTER `force_pubgroup` ;		
+
+	*** Code changes / Optimizations:
+		
+		- Queue, Recipients list: create queue, now filters for status !=4 etc. instead of =1 ---> see sourcefile for comments, now it works as expected!
+			https://sourceforge.net/tracker/?func=detail&aid=2807136&group_id=190396&atid=933192
+		- tinyMCE language errors, for some reason i mixed up new v3 lpacks with tinymce v2.x, now switched and updated to tinymce v3.x
+		- switch to tinymce 3.x, complete update, add tinymce gzip.... ok, tested, works for me
+		- host: removed check for 'invalid' chars. some special chars are needed sometimes for the username on some hosts. 
+			http://sourceforge.net/forum/forum.php?thread_id=3308114&forum_id=675746
+		- allow / character in imap/pop3 options!
+			https://sourceforge.net/tracker/?func=detail&atid=933193&aid=2767032&group_id=190396
+		- quick and dirty gmail hack in smtp/smtp.php:
+			https://sourceforge.net/forum/forum.php?thread_id=2954157&forum_id=670073
+		- en translation of Messages.inc.php:
+			from vwinstead: https://sourceforge.net/forum/message.php?msg_id=7456872
+		- queue: use check_dbid instead of !empty or >0 for checking valid ids
+		- install: added installation notes!
+		- install: show one big form
+		- .htaccess: added some comments
+		- users: allow upper case chars in Tellmatic usernames
+		- install: Check for permissions for creating temporary tables in mysql!
+		- API example: more examples
+		- newsletter: make massmailing/personalized checkbox a selectbox with 2 options
+		or downloads from other hosts than sf or tellmatic.org
+		- unsubscribe: use default host to send mails!
+		- install: add warnig message for payed downloads or download from other hosts than sf or tellmatic.org 
+		- install: removed to: header in install mail, may make trouble with suhosin
+
+	*** Bugs fixed:
+
+		- help/quickdoc: e.g. after edit help for edit was shown for the list view
+		- users: removed mouseover which has no effect in user list in first column
+		- users: removed icon and link for statistics in list and legend for users, has no effect! later we will have a link to the log here!
+		- NOT A BUG (!?): [ tellmatic-Bugs-2767198 ] Email bounce management can't download messages from IMAP: https://sourceforge.net/tracker/?func=detail&atid=933192&aid=2767198&group_id=190396
+		- most/own js errors and warnings
+		- subscribe: http://sourceforge.net/tracker/?func=detail&aid=2642029&group_id=190396&atid=933192 , sender_email in opt-in is missing - ID: 2642029 , now uses defaulthost as configured!
+		- removed whitespaces in smtp_message.php: https://sourceforge.net/tracker/?func=detail&aid=2789936&group_id=190396&atid=933192
+		- fixed some brackets around joins in addHQ in Class_Q
+		- edit adr: name datum sind vertauscht
+		- Functions: check_dbid laesst werte =0 zu, sollte sie nicht!!! aendern und neues verhalten testen! changed to >=1
+		- Functions: tm_icon, now use display() to write title into speechbubble! Gives us a javascript error before if use ' characters etc, doc_writer('sprechblase_text','".display($title)."');
+		- bounce: typos in bounce, only emai header, fixed typo -en.po
+		- translations: translation error: adr_grp_new: say 'newsletter group' instead of 'address group', fixed
+		- subscribe: on update public groups get not updated!
+			https://sourceforge.net/forum/forum.php?thread_id=3317937&forum_id=675746
+			https://sourceforge.net/tracker/?func=detail&atid=933192&aid=2814505&group_id=190396
+			fixed! instead now the admin chooses from overwrite or update! see new features.
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.4-fix01  +*+*+*+*+*+*+*+*+*+*+*+*
+	02.02.2009
+	This is a bugfixed version of 1.0.8.4.
+	
+	*** Code changes:
+		- demo: do not show sensitive informations if demo is enabled.
+		- install_conf: define DEBUG_SQL/SMTP		
+
+	*** Bugs fixed:
+		- unknwon comlumn nl_q.nl_id when creating new Q's. This is related to new Mysql5 versions.
+			https://sourceforge.net/forum/forum.php?thread_id=2959431&forum_id=670073
+			https://sourceforge.net/forum/forum.php?thread_id=2958611&forum_id=675746
+			https://sourceforge.net/tracker2/?func=detail&aid=2556491&group_id=190396&atid=933192
+		- settings: Undefined variable: return_mail in include/adm_set.inc.php line 108, deleted, reply_to is now in hosts.
+			https://sourceforge.net/tracker2/?func=detail&aid=2555569&group_id=190396&atid=933192
+		- settings: Undefined variable: max_byte_size file include/adm_set.inc.php line 94, should be "max_upload_size"
+			https://sourceforge.net/tracker2/?func=detail&aid=2555583&group_id=190396&atid=933192
+		- fm: re-enabled old filemanager and fixed typo
+			https://sourceforge.net/tracker2/?func=detail&aid=2555582&group_id=190396&atid=933192
+		- maps: php_error: Undefined index: HTTP_CLIENT_IP file:/home/WWW/m000000/share/html/.tellmatic.de/.tm/include/Functions.inc.php line 210
+			https://sourceforge.net/tracker2/?func=detail&aid=2556469&group_id=190396&atid=933192
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.4  +*+*+*+*+*+*+*+*+*+*+*+*
+	29.01.2009
+	a lot has changed in this version. almost all known bugs were fixed. the gui gets enhanced and i added a lot of new features.
+	also i recoded a new send-routine. this doesn't use weird php code anymore and i no more such a memory and time consumption. the stuff is done now directly in sql.
+	this new send-routine allows us now to add new addresses to a Q just before sending, regardless when you have created the Q and recipients list!
+	(In detail: it uses a temporary table to preselect already existing addresses in the recipientslist and exclude those from being added twice to the list and only new entries will be added.)
+	
+	*** New features:
+	
+		- Sending/Queues: now using the "fast method"! When creating a new Q, you now can select if the Q should start and recreate the recipients list automagical.
+			If you select this option, the Q starts automagical and recreates and updates the recipients list regardless if you create it now. This means you can now leave the checkbox for creating a recipients list just after adding the Q empty if you dont want to do that now and let Tellmatic create the list (TM will send an email if a rcpt-list gets updated).
+			Add new addresses to existing queues was solved using some magic SQL. 
+			In the Q list you can click to update the recipients list with new addresses. 
+			This is usefull if you plan a Q and visitors still subscribe to the newsletter.
+			this can also be done automagically by Tellmatic just before sending! new Q actions: create list now, create list automatical, do not create list/manually
+			Also if a new user subscribes to a form and gets added to a group which has active queues the address gets added to the list if the Q has not already started.
+			- links in list view to recreate recipients list in addressgroup list and newsletter list (only if new or started Q's exists for the selected addressgroup or newsletter) and queue list.
+				(if you recreate rcpt-list for a newsletter or address-group, all Q entries for this items are affected! To recreate the list of single Q entries use te Q list!) 
+			- send mails: recreate recipients list automagical (optional)
+			(Class Q: function getQtoPrepare($search=Array()),	function setAutogen($id=0,$autogen=1))	
+			There was also a discussion about this in the forum at http://sourceforge.net/forum/forum.php?thread_id=2392205&forum_id=670073
+			Details: 	if you have 2 queues (or more) for one newsletter and some address-groups  (bear in mind that each Q entry is for a newsletter for one address-group!) 
+							which have not been started yet, and you start one of this Q's, only the addresses for this Q for the selected group which do NOT exist in another group 
+							for the same newsletter gets added to the recipients-list!
+							Example:	adr1 is in grp1, adr2 is member of grp1 and grp2 and adr3 is member of grp3. you create a new Q for nl1 addressed to grp1, grp2 and grp3. Q's are not started and have date in future. Recipients list was not created yet. 
+											Now, if you watch the Q list for nl1 and create the rcpt-list for grp1, only adr2 gets added to the list! (you may have expected that adr1 and adr2 gets added ;-)
+											(If you have an address which is member of 3 groups and you have 3 unstarted Q's, the address will only be added in the last started Q for its groups.)
+							This makes it easy to add addresses from different groups step by step and keep them up to date. only unique addresses from a group will be added! 
+							It's a kind of a side-effect resulting from the new code. I added it as a feature! this is not a bug!  
+			
+			ATTENTION! This feature is completely new and rewritten. there was no need to keep the old method. the old method used too much memory and time to create the list with pure php.....
+			Ich tested it many times for different caes and it looks very fine. But i CAN NOT promise that it works for 100% yet, maybe 99,9% :>   
+				
+		- nl: use {DATE} in a newsletter subject, text and uploaded html files to display current date (Y-m-d). The format of the datestamp is defined as TM_NL_DATEFORMAT in tm_lib.inc.php
+		- nl: use {CODE} in newsletter text. The "code" yet is only used for double-in subscription to make the URL more individual. The "code" may be used for later functions. 
+		- nl: attachements uses subdirs and are shown as a group for ech dir. Only 1 dirlevel is supported!
+		- Config/Settings: 	select default SMTP host. This is the default SMTP host for sending internal mails and subscription mails. This is the pre-selected host for new queues. See changes for 'hosts' below
+										now all SMTP settings are saved in the host entry and come from the selected SMTP host. 
+		- hosts: set "from", "return-path" "from name" etc. used for sending emails via the selected SMTP host.
+		- hosts: enable SSL
+		- hosts: set "max_piped_recipients" for SMTP. Be carefull changing this setting. This tells your server to send N recipient addresses as one pipe before waiting for OK! Do not change this if your server uses tarpitting etc.
+		- hosts: "max_bcc" and "max rcpt per mail" is now set in hosts. Sending now use values from selected SMTP host.
+		  memo: internal status mails send from tellmatic to the admin or user and all mails send via form-subscription uses the default SMTP host.
+		
+		- bouncemanagement: better addressdetection in definable headers, detect potential looking like an emailaddresss, check headers not only for x-failed but all headers, also with headers continuing on the next line! works good and is ok so far, detects more addresses!
+
+		- testaddresses: just a new include file, this adds some testaddresses to your database. Please ne careful! This script is disabled by default and should only used for testing a new database, not in production!!! use it on your own risk! you can really mess up your database :) i tried it out for you. (just a warning, experienced users should have look at it anyway)
+		- lost password: example file "reset_pw.php" to reset your lost Tellmatic password
+	
+	*** GUI changes
+		- added new translations and language packs for "nl" (dutch/flemish) and "pt" (portuguese/brazil)
+			Credits goes to
+			* Dutch: Rob J Wierenga, Yard-IT BV
+			* Portuguese: Elizandro Baldin (Brazil)
+	
+		- improved GUI and Menu using mootools fx slider to slide in and out the menu entries and messages etc.
+		- revied all forms and corrected/adjusted tabindex.
+		- ALL icons have a quick mouseover helptext showing as a speechbubble		
+		- list views: added pager to almost all lists. (if more than N entries are shown in a list the pager will be displayed)
+		- status: status etc is displayed now in tables and use rowcolor effect for mouseover.
+		- newsletter: when editing or creating a newsletter the size of the attachements will be shown in the list.
+		- newsletter: show attachements size and summary in the details of the newsletter list view. Give a waring if a file does not exist. (edit newsletter once and save to fix this, lost files gets de-refereenced from the attm list)
+		- beautified the "new Q" form.
+		- address list: show a warning if sending errors have reached the limit.
+		- address list: sort by internal ID
+		- address list: show count of valid addresses
+		- address list search form: added some nice icons (*Alarm... icon overload occured in Tellmatic :))
+		- address form: show select options for status in different colors
+		- address form: slide in /out memo, memo textarea is not shown by default :) click to slide in.		
+		- Menu: new entries: "Send" --> "Q", "new Q", "manual sending"
+		- addres groups: show Q's
+		
+	*** Code changes:
+		
+		- sending mails: fast sending and recipients creation/recreation method, see new feature above!
+		- forms class: add style parameter to add_InputOption (used to set single style, e.g. bgcolor for specific options, see addressform -> status or bouncemanagement :)
+		- send_it.php checks now if attachement files really exists before adding.
+		- addresses: added method addMemo($adr_id,$memo) used by all update functions, edit, subscribe etc. Adds date, time, memo and linebreak. adr_edit uses method newMemo()!1!
+		- queue_send: adjusted limits
+		- subscribe_form: adjusted tabindex
+		- nl_list: delete history will no more delete the Q entry
+		- send_it: toname!="" should not be empty or == emailadresss. if empty use default, if default is empty use $AppName."Newsletter"
+		- blacklist checking disabled creatng new Q, this is done in send_it.
+		- drop index/row attm in newsletter and db
+		- queue_send: added timer for fastmode :) speedup creating a list is about 100 times :O woot!
+		- added debugmodes in DEBUG_SMTP and DEBUG_SQL
+		- nl_list: delete nl history clearH("not_running"=>1) should not delete entries in nl_h with status 1 or 5
+		- Class_Adr: count valid addresses, (no blacklist checking!) countValidADR($group_id=0): aktiv, status 1,2,3,4,10,12 && errors <=$C[0]['max_mail_retry']:
+		- Menu: "aktiv", set to 0 to disable single menu entries.
+		- wysiwyg imagelist use new functon getFiles
+		- host_form: deactivate POP3 features if SMTP is selected and vice versa
+		- added new js functions to manage slide in out with mootools
+		- added new js functions to manage deactivation of single form fields
+		- updated api_example.php
+		- automagical create wysiwyg language list, no more manual editing if a new lang gets added!
+		- delete Q sets nl status to new. now leaves old status!
+		- adr_new: if address exists, status is not changed!
+		- filelists for attachements and images etc showed .. dirs and .htaccess files. they are now filtered and hidden.		
+		- Class_Form: use lastinsertid()
+		- ALL Sql queries: do not use ' for integers!
+		- in all SQL queires: additional checks for valid integer and dbid values!
+		- added and updated language packs for tinymce wysiwyg plugin.		
+		
+	*** Fixed bugs:
+	
+		- sorry for that: address cleanup: email filter not working, *.ch* deleted all addresses, ouch! fixed!!!		
+		- missing file Form_0_os.html for Double-Opt-In  
+		- Undefined variable: attach_existing
+		- Undefined index in include/adr_clean.inc.php line 196		
+		- Undefined variable standard in include/nl_grp_form.inc.php line 50ff.		
+		- new Q says OK even if there was no newsletter selected
+		- creatig a new Q says "checking emails .. selected server etc" for each group
+		- if enabled DEBUG ___() function returns -- on untranslated strings which breaks html comments <!-- -->
+		- Undefined variable: From in include/send_it.php line 139
+		- Undefined variable: SMTPPopB4SMTP in include/Functions.inc.php line 676
+		- delete Q and history for selected nl: Undefined offset: 0	in include/queue_list.inc.php		
+		- wysiwyg and MS-IE: https://sourceforge.net/forum/forum.php?thread_id=1969687&forum_id=670073
+		- queue_send: blacklist was always checked
+		- Subscription mails had wrong html/text formatting, shows text twice
+			https://sourceforge.net/forum/forum.php?thread_id=1760605&forum_id=670073
+			Functions.inc: sendmail_smtp() split html and textpart
+		- hosts: username: allow - und _ und . etc	$Form->set_InputJS($FormularName,$InputName_User," onChange=\"flash('submit','#ff0000');\" onkeyup=\"RemoveInvalidChars(this, '[^A-Za-z0-9\_\.\-\@-]');\"");
+		- checkemail level 2 (mx/dns) was not RFC. fixed. now the default host is used if no my is set in the dns.
+		- atttachement directory contained .htaccess file?	
+		- fixed all open bugs from SF Tracker :)
+	
+	*** Known bugs:
+	The statistic will not shown or fail for some entries if the Q has been deleted. The data in the history is not lost. This is just because the statistics looks for a Q entry which doesn not exist.	
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.3  +*+*+*+*+*+*+*+*+*+*+*+*
+skipped! this version does not exist :)
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.2  +*+*+*+*+*+*+*+*+*+*+*+*
+	* New features/Changes:
+		- multiple, unlimited attachements.
+			{ATTACH1} and {ATTACH1} are no longer used. Instead use {ATTACHEMENTS} to display a list of attachements and links
+		- "action url" in forms: in some cases an url is needed to post the form, enter url here if phpself doesn't work (php self is default if URL is empty)
+		- export addresses from bouncemails
+		
+	* Bugs fixed:
+		- Translation: ist nicht passwortgeschuetzt ---> is not write protected.	
+		- subscribe: fixed bug on checking email at dubleoptin confirmation
+		- unsubscribe: use email checking method for subscriptions instead of internal
+		- install: sql: nl_attm: site_id should be siteid
+		- nl_edit: do not strtr body_text
+		- login: disable cookiechecks, needed to login twice after false login or timeout etc.
+
+	* Code changes:
+		- adr_import: use move_uploaded_file() instead fo copy
+		- frm:descr tinytext (was varchar(255) before)
+		- hosts: allow @ sign in username
+		- forms: parse {FGROUPDESCR} , FGROUPDESCR is replaced by a list of public groupname and description
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.1  +*+*+*+*+*+*+*+*+*+*+*+*
+	* New features/Changes:
+		- Legende: split attributes and actions/status
+		- Newsletter: Add Textparts! The HTML Code isnt converted to Text anymore, you should fill in textpart in the new Textarea. Textpart is saved in nl_[]_t.txt in files/newsletter and used as a template to parse uservars
+		- send_it.php: use Textpart template for textpart, do not convert html to text
+		- adm_set_form/nl_form: use basename trackimages
+	* Bugs fixed:
+		- adr_form.inc.php: bug in f0-f9 fields, fixed
+		- queue_send.inc.php: fastmode. not used yet, but defined.
+		- adr_import: bulk import did not work, lines dont get imported, fixed!
+		- adr_import: delimiter within excapecharacters destroys import, e.g. "test@tellmatic.org","herr","test,test", fixed!
+		
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.0  +*+*+*+*+*+*+*+*+*+*+*+*
+	24.06.008 - 03-07-008, 01.09.2008, released 01.10.2008
+
+		* New Features:
+	
+			- Newsletter Recipients Name:
+			-- Added field to define recipients name (shown as rcpt name in email client). 
+				Global rcpt name in settings is used as default in new newsletters. You can use parsed values {F0}-{F9} in personalized Newsletters!
+	
+			- Newsletter Subject:
+			-- Added support to use parsed values {F0}-{F9} in subject for personalized Newsletters!
+	
+			- Multiple SMTP/POP/IMAP  Hosts: Now supporting multiple userdefined Mail-Servers for Sending Mails and Bouncemanagement:
+			-- Uses different IMAP/POP3 Hosts for Bouncemanagement
+			-- Uses different SMTP-Servers to send Mails (select different SMTP-Mail-Servers for Queue)
+			-- On install, the default smtp-server is inserted into the hosts table too, also as default pop3 server.
+			-- using SMTP-Server defined in settings only for internal mails like notofications and logs etc.
+			-- added smtp_auth and smtp_port to default smtp server (defined in install/settings, now only used to send internal mails, like notifications, logs etc)
+			--- DBS: added table 'hosts', added host_id to nl_h, nl_q (int)
+			--- Install: create Table 'hosts', added host_id to nl_h, nl_q
+			--- Menu: add Entry to list and add Mail-Servers, added Mail-server list/add/edit masks and forms
+			--- Create Queue/Recipients list: Select Mail-Server (active SMTP) / save host_id
+			--- Bouncemanagement: Select Mail-Server (active POP3 or IMAP)
+			--- send_it: use SMTP-Host defined in Queue, check if Host is active and exists. If not exists or not active, stop Q
+	
+			- CSS for subcribe forms: 
+				subscribe forms layout: use css classes to define style of inputfields: tm_form[_focus]_f0 to f9, tm_form[_focus]_email, tm_form[_focus]_captcha, tm_form[_focus]_memo, tm_form[_focus]_submit, tm_form[_focus]_reset
+				you can find a default example css in css/form.css
+			-- added HTML Header in Form Templates for use of css, to update, just copy form and use new generated form or template
+	
+			- Public Groups: 
+				User can select from preselected address-groups. You can define a set of groups the user will always get subscribed to, and some groups the user can choose. The group must be public to make it selectable by the subscriber!
+			-- added flag 'public' and 'public_name' to adr_grp table (used with forms and user defineable groups to subscribe to)
+
+			- Blacklist:
+				Use 3 Types of Blacklist: 
+					per E-Mail-Address: Blacklist single E-Mail-Addresses
+					per Domain: Blacklist Domains, e.g. 'msn.com', 'aol.com', 'googlemail.com' etc.
+					per regular expression (ereg): Blacklist Addresses which matches the regex
+				-- Added Menu Entry Addresses/Blacklist
+					
+		* GUI:
+			- show address count in addressgrouplist and sort by name, addresses, id, aktiv	
+			- Select multiple addresses in addresslist and set status/delete/activate/deactivate
+			
+		* General Code changes:		
+			- "simplify" code in subscribe_form.inc.php and form_form.inc.php
+			- "simplify" code in subscribe.inc.php
+			- split click.php, subscribe.php, unsubscribe.php, news_blank.png.php and use includefiles from /include/click.inc.php, subscribe.inc.php etc
+			- use sockets instead of tcp port to connect to mysql (untested!!!) (tm["DB"]["Socket"]=1 in tm_config.inc.php)
+			- install: choose from MyISAM or InnoDB type for db
+			- subscribe messages and mailsubject can be defined in include/Messages.inc.php
+			
+		* Bugs fixed:
+			- subscribe.php: Captcha Code with leading 0 gives error and was displayed as n-1 dgits. fixed.
+			- Install: Version Number in Install-Mail
+			- subscribe.php: Checkboxes are not longer checked by default.
+			- forms: form_form.inc.php: use display() to set values in textinput. (")
+			- etc.	
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.7.4  +*+*+*+*+*+*+*+*+*+*+*+*
+	24.06.2008
+		- Menu: add Entry to watch complete Queue
+		- Installation: Fix Path-"Bug"
+		- Send: Fixed important Bug with undefined Array in Massmailings.
+		- Export: Fixed Bug with Delimiter
+		- Filemanager: fixed wrong Path using Constants
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.7.3  +*+*+*+*+*+*+*+*+*+*+*+*
+	12.12.2007
+		- changed $tm_ vars for internal dirs and paths to constants. 
+			fixed for: http://secunia.com/advisories/27895/?answer=62 
+			- this exploit takes only effect in a very special setup: 
+				1) register_globals is on 
+				2) allow_url_fopen is enabled
+				3) .htaccess in include directory is not working
+		- unsubscribe, subscribe, click, view saves a memo in the address record ->addMemo(adr_id,memo)
+		- queue_list: added refresh link
+		- create new queue now shows q-list after submit instead of nl list
+		- session lifetime changed to 360min ^=6h
+		- install: check for register globals, safe_mode, magic_quotes
+		- status: icons for links to lists and statistics
+		- csv export: changed format to:	email, f0-,,,,,,,-f9, id, created, author, updated, editor, aktiv, status, code, errors, clicks, views, newsletter
+		- set status 5:running in send_it.php just before validate email address 
+			prevent sending double mails. this happened when multiple jobs were running. now setting status 5:running just before checking email
+
+		Details: see ChangeLog file.
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.7.2  +*+*+*+*+*+*+*+*+*+*+*+*
+	06.12.2007
+		- removed some php warnings and some small fixes
+		- added support for multipart-mime/mixed/alternative
+		- fixed a 'bug' on viewing newsletters, status was set even if unsubscribed
+		- added status 7:unsubscribed for history 
+		- santa claus does not wear a red cloak!!!
+		- fixed a bug when searching for mixed case emails, now forcing lowercase
+		- on upload use move_uploaded file instead of copy...
+		- fixed problem with send time set to 0h00m or similar, 0 is empty in php :P, if set to 0 the current servertime was used..., fixed
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.7.1  +*+*+*+*+*+*+*+*+*+*+*+*
+	01.12.2007
+	- small fixes
+	- removed the sideeffect that sends a copy of each message to admin when bcc is used.
+	- setting rcptto: limit for smtp to 1 before waiting for OK. Removes problems when tarpiting is used on the Mailserver.
+	
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.7  +*+*+*+*+*+*+*+*+*+*+*+*
+	16.11.2007
+	In short: 
+		Tellmatic 1.0.7 contains tons of bugfixes, optimizations, new features, massive code cleanup, important security fixes, speed and perfomance optimizations etc.
+	
+	more Details:
+	
+		Fixed bugs:
+		 - send_it.php: trys to send mail even if entry is already processed, (not critical), fixed
+		 - wysiwyg: missing file plugins/contextmenu/langs/XX.js, wysiwyg won't start if language file was missing, (not critical), fixed
+		 - subscribe.php: 
+		 	typo: $SUBSCRIBE_URL=$mnl_URL."/subscribe.php?doptin=1&email=".$email."&fid=".$frm_id."&c=".$code;
+			should be:	$SUBSCRIBE_URL=$mnl_URL_FE."/subscribe.php?doptin=1&email=".$email."&fid=".$frm_id."&c=".$code;
+			, fixed
+		 - serverinfo: used get_cfg_var, now use ini_get() instead, (not critical), fixed
+		 - click on a newsletter name to edit does not throw a warning, now it does, (not critical), fixed
+		 
+		Changes, new features and enhancements:
+
+		 - installation splitted into single steps
+		 - userflag: manager, you must be a 'manager' to use bouncemanagement and database clean up
+		 - multiuser: add/edit/delete tellmatic authors
+		 - html code and default style is 100% valid html and 100% valid css code
+		 - index.php in installation directopry contains an example how to use the subscription and unsubscrtiption form
+		 - configure hard coded messages not using gettext for unsubscribe and subscribe, to change: open tm_lib.inc.php and edit 
+			$MSG['subscribe']['update']
+			$MSG['unsubscribe']['unsubscribe']
+			$MSG['unsubscribe']['error']
+			$MSG['unsubscribe']['invalid']
+			$MSG['unsubscribe']['already_unsubscribed']
+			$MSG['unsubscribe']['invalid_email']
+			all other messages for forms are configured in the form and saved in database!
+		 - name field for 'email' added to forms
+		 - added free definable errormessages in forms (for email, captcha, f0-9)
+		 - added regexpression fields for forms to let you check the input, e.g.: "^[A-Za-z_ ][A-Za-z0-9_ ]*$"
+		 - more icons :)
+		 - added delete flag for addresses
+		 - added LastInserID to DB Class, now inserting an entry does not require to read the inserted entry to add details (addresses)
+		 - internal address checking nw uses exact match for email, speeds up double checking by 1000%!
+		 - add a Q: now uses offset and limit to insert the queue entries, works well with only 8MB now.
+		 - $mnl and all variables, constants named mnl are renamed to use unique tm_
+		 	e.g. MNL_SITEID becomes TM_SITEID
+		 - changed some Class names
+			mMail: tm_Mail
+			mBounce: tm_Bounce
+			connectDB: tm_DB
+			mnlCFG(); tm_CFG
+			mnlNL(); tm_NL
+			mnlQ(); tm_Q
+			mnlAdr(); tm_ADR
+			mnlFRM(); tm_FRM
+			mSimpleForm: tm_SimpleForm
+			mURL: tm_Url nur in index
+			mTemplate: tm_Template
+		 - checking emails now returns the exact reason why it has failed! (syntax, mx, dns, validation etc)
+		 - import: saves a logfile instead of showing the messages
+		 - setting default siteid to 'tellmatic'
+		 - import: disable checking for existing entries
+		 - newsletter and address status have colors now.
+		 - security checks e.g.: http://www.henke37.cjb.net/index.php?page=phpsafety and more
+		 - handle evil magic quotes correctly: see http://www.php.net/manual/en/security.magicquotes.disabling.php#id2553906
+		 - all queries uses mysql_real_escape_string(): function dbesc($val) { return mysql_real_escape_string($val); }
+		 - added a login page, login is using return-include
+		 - use session logins
+		 - all .inc files renamed to .inc.php
+		 - mnl_config.inc becomes tm_config.inc.php
+		 - mnl_lib.inc --> tm_lib.inc.php and tm_lib_admin.inc.php
+		 - tinymce_il.php moved to /include
+		 - passwords are saved as a md5 hash of siteid, username and password md5(siteid,name,password)	
+		 - added function tm_icon() to show icons, generates unique img src, using alt, title and id
+		 - added function display() to show output text in browser (wrapper for htmlentities() and stuff)
+		 - templates for layouts are now saved in different directories, each for one stylesheet. (see /tpl)
+		 - styesheets renamed to tellmatic*.css
+		 - GeoIP support: added geographical map for readers and subscribers etc (ip is saved on click, view or subscription)
+			http://www.maxmind.com/app/api / LGPL
+		 - import: added limit and offset
+		 - export: added limit and offset
+		 - export: select file, overwrite or append to existing file
+		 - graphical statistics, barcharts for summary and details for addresses, groups, newsletter, queue, etc.
+			 using libchart - http://phpcode.mypapit.net/php-class/libchart-howto-create-bar-chart-and-pie-chart-easily-with-php/20/
+			 http://naku.dohcrew.com/libchart/pages/samplecode/ GPL!!!
+		 - somewhat optimized sql
+		 - added indexes to db
+		 - classes use only 1 or max 2 dbconnections at a time
+		 - splitted status/summary and top list
+		 - added menuentry 'manage' for bouncemanagement and db cleanup
+		 - added menuentry for phpinfo()
+		 - added menuentry for credits/donate etc
+		 - new directory /files/reports to store reports and maps and charts
+		 - added memo to addresses, will be updated manually, saves memos on subscription, updated by import+update etc
+		 - new Stats.inc	ARR=Array();ARR[ ][ ] becomes ARR=Array(Array(...))
+		 - Class tm_ADR: getAdr with no details (saves a lot of memory)
+		 - js validator: http://www.silisoftware.com/scripts/index.php?scriptname=jsFormValidation
+		 - if user password changes, a new .htpasswd file is generated in /include
+		 - added spellchecker for wysiwyg
+		 - export: get available memory and export with limit and offset, now exporting 100 of thousands addresses is no more problem
+
+	The list is not complete.
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.6  +*+*+*+*+*+*+*+*+*+*+*+*
+	30.07.2007 - some bugfixes and enhancements
+	changes in 1.0.6:
+
+		- index.php now moved to admin/index.php! (if updating: please delete the index.php from tellmatic installation directory from previous installs)
+		- all sourcefiles now saved as utf-8, this should solve problems with some languages and esp. german 'umlauts', there may be some other isssues with encoding, but this is only affectng the UI translation.
+		- export: enter filename for exportfile, choose delimiter
+		- import: 	* select delimiter
+						* select from previous uploaded import file
+						* delete imported addresses
+						* move existing addresses
+						* activate or deactivate new and/or existing addresses
+						* bulk-import (enter data directly to a textarea and import)
+						* choose how imported email addresses will be checked (default is global internal setting, or set to 'no check' (be very very careful!), 'check syntax' or 'check syntax +mx')
+		- themes: 	* energysave-theme for mozilla and IE
+						* theme directories are now autodetected and listed in the user settings, mnl.css must exist
+		- somewhat improved UI
+		- newsletter: subject now up to 255 characters.. was only 48 chars :>, sorry		
+		- forms: 	* captcha code is now crypted as md5 and compared to the md5 value of the entered code
+						* disable/enable use of captcha and amount of digits
+						* enter text for submit and reset button
+						* new var {FDESCR} contains the form description for templates. Be careful, this is for testing only, description is not 'html-save' at the moment
+						* new var {FMEMO} contains a memofiled, memos are saved in the address-details table
+						* activate/deactivate new subscribed addresses						
+		- adresses:	* Added a memo field
+							* Sort by multiple fields in the search mask
+		- adr-groups and nl-groups: * added missing author and editor fields		
+		- newsletter: 	* choose content type, send nesletter as combined text/html mail, only html or only text. (using "phphtmlparser")
+							* select or upload your own blindimage, jpg or png, 256colors or 24 bit with transparency,
+							choose from uploaded blindimage, or upload a new one, or use a blank png or select global settings.
+		- demo mode: set DEMO to TRUE in mnl_lib.inc  to activate demo mode. 
+							This will de-activate all delete functions and sending-routine. in demo mode the upload is limited to only 2 kb. 
+							Show faked passwords, dont save / change admin or user settings like passwords etc.
+		- debug mode: only used for gettext emulation now, shows some infos if the pattern matched or guessed or if the default string is returned..., set DEBUG to TRUE in mnl_lib.inc if you want to translate Tellmatic.
+		- admin:		* select global blindimage, choose an existing one or is a blank png should be used. Needed if you use global blindimage setting in your newsletter.
+						* optionally show news at the startpage and do a version check
+		- user:	set expert user ;) If you're an expert, the menu will only show the current section and others are hidden by javascript and will only be shown if you clkick on the menu header, check it out...
+					some help-texts and the legend will be hidden by js too.
+		
+		... and a lot of bugfixes, code cleanup etc.
+
+		Special Thanks goes to helios for sponsoring some of these nice new features! 
+		!And all other users who suggested new features and functionality.
+
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.5  +*+*+*+*+*+*+*+*+*+*+*+*
+	21.05.2007 - some bugfixes and enhancements
+	changes in 1.0.5 (1.0.4.2):
+		- Install:
+			- select language
+			- check DB Connection
+			- some more checks
+			- check if php runs as cgi, throw a warning!
+			- create example data
+		- trackingimage (blindimage), uses now img/mylogo.png or 4x7pixel blank png if not exists instead of 1x1 pixel webbug
+		- select top X in status
+		- new, much faster gettext emulation using plain text .po files!
+		- serverinfo now displays some more or less useful debug infos
+		- toggle wysiwyg on/off link
+		- tinymce - updated from 2.0.6.x to 2.1.0
+		- emailcheck , new, better regex
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.4.1  +*+*+*+*+*+*+*+*+*+*+*+*
+	30.03.2007 - a new bugfix-release....
+	bugs in 1.0.4, fixed for 1.0.4.1:
+		- send_it.php had a typo ... it used the wrong template for personal mailings. fixed!
+			users who have downloaded 1.0.4 before, should only update send_it.php
+			download from here: http://www.tellmatic.org/download/send_it.php.txt
+			and save it as send_it.php in the include-directory.
+		- install php contains a check for php5 and throws a message, not needed anymore.
+
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.4  +*+*+*+*+*+*+*+*+*+*+*+*
+	27.03.2007 - a new bugfix-release....
+	bugs in 1.0.3-a, fixed for 1.0.4:
+		- install.php: if mnldir is empty, use .
+		- subscribe.php: when a member has unsubscribed and subscribes again, the address is marked as new again , but leaves inactive, now it sets the address active again	
+		- fixed gettext implementation ... _() instead of __() was used by ___()
+		- Empty directories /files... etc. are included again, some people reported problems. In some cases PHP settings dont allow the script to create subdirectories or full chmod.
+		- In menu 'new delivery job' link was wrong.
+		- 'click.php' didnt redirect to the link. was a missing exit; after header()
+		- Onlineversion of newsletter was not shown, the variable was not parsed but preview was ok.
+		- Fixed some PHP-Warnings (undefined variables)
+		- Http reload in send_it.php didnt work
+		- Translations i German had broken Umlauts, was not charset UTF-8 and encoding 8-bit
+	
+	changes in 1.0.4:	
+		- re-ordered menu
+		- Default language after installation is now 'en' - english.
+		- Smtp user/passwd etc no more required for installation
+		- $_SERVER["PHP_AUTH_USER"] gets $LOGIN->USER['name']; AUTH_USER is only used now in the login method, so we can switch to session easily
+		- show phpinfo() if mnl_config does not exists. e.g. if index.php is called before installation :) so you can check the php version and settings.
+
+	new features in 1.0.4:
+		- Status now show a list of all Groups, and a + icon to show the details which are in a hidden div now, otherwise its sometime too much to view.
+		- included knittl's filemanager from myftphp and adapted to run with tellmatic :) its still very experimental. Please visit http://myftphp.sf.net to get the latest Version (Standalone).
+
+	known bugs in 1.0.4:
+		- still no PHP auth with cgi version, we need sessions here, but i am prepared, not a bug!
+		
+		please report any 'bugs'.
+	
+
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.3-a  +*+*+*+*+*+*+*+*+*+*+*+*
+	25.03.2007 - a small update
+	changes, new features and enhancements:
+		- Version checking: when you enter tellmatic, it shows the actual version available and latest news :) 
+			It is recommended to download and use the latest version if there is one available.
+		
+	bugs fixed:
+		- {BLINDIMAGE} was not in the list for variables creating or editing newsletters... nobody knew about the feature :O
+		- some strings were not detected by xgettext: warning: unterminated string literal, fixed and added to .po and .mo
+		- Class_Q.inc zeile 338 $mnl_siteid must be MNL_SITEID, i just forgot to copy this line to the release version ;-)
+		- Not all files in archiv had read permission for others. wysiwyg editor may not load or form for new address-groupwas not shown... , reported for some installations, depending on php user-permissions etc.
+		- Target was missing in Menu: was always _self, but should be _blank sometimes
+		- Menu is now indented
+		- HTML output for send_it.php was a bit broken, reload link was missing, 'html' at end of file should be '/body' and '/html'
+		- fixed/added links to readme, install , update in install.php
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.3  +*+*+*+*+*+*+*+*+*+*+*+*
+	24.03.2007
+	changes, new features and enhancements:
+		- Internationalization support via GNU gettext was added (php-gettext emulation functions - also works if gettext is not suppported by php!)
+		- created/translated gettext phrases (about ~570) to german and english. tellmatic is now available in german and english.
+		- translated quickhelp files to english. (each language now hgas its own directory depending on the selected language)
+		- if a user unsubscribed, and subscribes again, status is set to 'new' , otherwise status doesnt change for already registered users on update!
+		- Charset switched to UTF-8 for mails and webinterface! I need feedback here.
+		- $mnl_siteid is now a constant MNL_SITEID, defined in mnl_lib.inc
+		- ntlm sasl client was missing in Class_SMTP.inc, added.
+		- Menu.inc was reweritten from Scratch, now using templates and an array for menuentries		
+		- fixed some non critical 'bugs'
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.2  +*+*+*+*+*+*+*+*+*+*+*+*
+	18.03.2007 voa
+	bugs fixed:
+		- workaround for php5, using compatibility mode ..... no comment... see README
+		- all password fields are now type 'password'
+		- check for mem_get_usage(), if not exists, memory information is not available... only for debugging purposes
+		
+	changes, new features and enhancements: 
+		- import: select new status for new and existing addresses
+		- export: only export addresses with status XXX
+		- newsletter: new Template variable {SUBSCRIBE} and {SUBSCRIBE_URL}, linking to subscribe.php and set status 'bestaetigt' like double-optin, this is almost for use with touch-optin mails :)
+			(this is when you import addresses and send a initial newsletter, you can add a link to subscribe. dont add a blindimage in your initial newsletters! after a few days, export all addresses with status 'bestaetigt' and import in a new group (like moving between groups)
+				subscribe uses the Template tpl/Form_0_os.html to show a message after clicking)
+				new status for touch is 12... (till i switch to bitmasks)
+		- installation now checks for writeable directories.
+		- installation now creates the directory file/... and all subdirectories. the empty directories are no longer included in the archiv
+		- installation now throws a message when php5 is detected.
+		- installation now checks for imap_open() and thorwos a mesage if not exists
+		- send_it.php's logfile is now in english. the status messages are sent bilingual (de/en)
+		- all forms: index.php becomes $_SERVER["PHP_SELF"]
+		- added style 'wine', a mixture of red and grey , please try it :) , and if your a 'Master of CSS' - send me your update ;-)
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.1  +*+*+*+*+*+*+*+*+*+*+*+*
+	13.03.2007 voa
+	bugs fixed: 
+		- message id not exists for pop3 connections
+		- install.php : link to index.php startpage contains \n
+		- subcribe.php: SUBSCRIBE_URL missing in optin mail	, broken link for textmails, fixed.
+		- install message contains no link and a \n.
+		- install mail is a bit weird.
+		
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0  +*+*+*+*+*+*+*+*+*+*+*+*
+	no changes, initial release!
+		
+EOF

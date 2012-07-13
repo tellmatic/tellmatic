@@ -1,0 +1,98 @@
+/********************************************************************************/
+/* this file is part of: / diese Datei ist ein Teil von:                        */
+/* tellmatic, the newslettermachine                                             */
+/* tellmatic, die Newslettermaschine                                            */
+/* 2006/11 by Volker Augustin, multi.art.studio Hanau                            */
+/* Contact/Kontakt: info@tellmatic.org                                      */
+/* Homepage: www.tellmatic.org                                                   */
+/* leave this header in file!                                                   */
+/* diesen Header nicht loeschen!                                                */
+/* check Homepage for Updates and more Infos                                    */
+/* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
+/********************************************************************************/
+
+INSTALL
+
+Update:
+
+	See UPDATE
+
+Notes:
+
+	see FAQ http://www.tellmatic.org/faq
+
+						
+Installation:
+	If possible create a subdomain like tellmatic.[yourdomain].[tld] with a separate dierectory.
+	Unpack the archive file to your local harddisc.
+	Copy the directory tellmatic-[xxx] or the content of this directory completely to your server via ftp into a directory of your choice. Images must be transfered in Binary Mode 
+	(Auto Mode is OK, but sometimes the ftp programm is broken and transfers images in textmode, this is a but in the ftp client, not in Tellmatic)
+	You can also copy the archiv via ssh or similar or use wget on your server. Please update user and groups for your needs after unpacking (chown)
+	The directory where you install Tellmatic and the 'include' directory must be writeable by the webserver - use chmod function of your ftp programm and set permissions to 0775 or 0777
+	
+	Now call install.php via your famous Browser and enter your data.
+	Select language for installation and accept license.
+	All fields are required except SMTP Data, which you can enter later on. (But you MUST set these values to send mails!)
+	The values for SMTP/POP3 are not checked, make sure theire valid!
+	Tellmatic is now installed, the configuration-file 'include/tm_config.inc' is written and database tables were created
+	The following directories must have write permisison too:
+	
+		admin/tmp
+		files/
+		files/logs
+		files/forms
+		files/import_export
+		files/newsletter
+		files/newsletter/images
+		files/attachements
+		files/reports
+		files/tmp
+		tpl (only for installation)
+
+	If there occurs some error, please follow the instructions.
+	Please delete, move or rename 
+	'install.php'
+	after successfull installation
+	
+	Tellmatic saves a .htpasswd file in /include. The include directory must have write permissions.
+
+		INFO:
+	
+			install.php creates a file called '.htpasswd', it includes username and crypted password for acces to the restricted directories
+
+	Please edit path to 'tm_config.inc' in 'include/send_it.php', 'subscribe.php', 'unsubscribe.php' - enter complete path here
+
+
+	download geoip database from http://www.maxmind.com/app/geolitecity
+		http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+		unzip and copy the file to include/geoip/GeoLiteCity.dat
+	
+	call admin/index.php, enter username and password at login page, ready, enjoy mailing :)
+
+	To send via cronjob via wget: 
+		*/5 * * * * wget http://[user:passwort]@[domain]/[tellmatic-installdir]/include/send_it.php > /dev/null
+	(you must add username and pw), 
+	or use php cli (recommended!):
+		*/5 * * * * /path/to/php-cli-binary /path/to/include/send_it.php > /dev/null
+	Sending Newsletters at a specific time is only possible with cronjobs! If you can't create Cronjobs on your Server, you have to use manual sending.
+	
+	Since Release 1.0.8.7 Tellmatic includes some Scripts for auto-bouncemanagemewnt and address validation.
+	These Scripts are als meant to run via a cronjob.
+	Do the cron stuff too for these scripts, create a cronjob and run script every few minutes or hours.
+	
+	* include/bounce_it.php: auto-bouncemanagement, set up in gui 'admin' -> 'settings' and create a cronjob to run it e.g. every 2 hours (don't set the limits too high). Edit include Path at top of file and remove the exit command!
+	You can run this Script manually via Browser from the Tellmatic menu in the 'management' section
+	 	
+	* include/check_it.php: auto-address validation, set up in gui 'admin' -> 'settings' and create a cronjob to run it e.g. every 10 minutes (don't set the limits too high). Edit include Path at top of file and remove the exit command!
+	You also can run this Script manually via Browser from the Tellmatic menu in the 'management' section. 
+	 	
+	
+For questions and suggestions please visit www.tellmatic.org and read doc and faq or write to the public forum.
+I will not answer question via e-mail without a donation, use the forum instead.
+
+For support please visit http://www.tellmatic.org/support
+
+Important: 1and1 or Strato-Users should watch the forum, it contains workarounds to get tellmatic running on such "special configured" hosts.
+
+
+EOF

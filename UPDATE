@@ -1,0 +1,947 @@
+/********************************************************************************/
+/* this file is part of: / diese Datei ist ein Teil von:                        */
+/* tellmatic, the newslettermachine                                             */
+/* tellmatic, die Newslettermaschine                                            */
+/* 2006/7 by Volker Augustin, multi.art.studio Hanau                            */
+/* Contact/Kontakt: info@tellmatic.org                                      */
+/* Homepage: www.tellmatic.org                                                   */
+/* leave this header in file!                                                   */
+/* diesen Header nicht loeschen!                                                */
+/* check Homepage for Updates and more Infos                                    */
+/* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
+/********************************************************************************/
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.9 to 1.0.9.0rc1
+
+--en
+	* Finish running jobs! No delivery jobs should run when you perform an update!
+	* Delete error Logfile files/logs/tellmatic_php_error.log (if exist)
+	* Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	* Please also read INSTALL.EN on how to set up cronjob scripts, auto-validation and auto-bounce,amagement.	
+
+	* Backup all your files and the database!
+	* To update earlier Versions than 1.0.8.9 please follow instructions for update to 1.0.8.9
+	* Backup all your files and the database!	
+	* Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	* Backup the database! Do it now!
+	* Update Database use phpMyAdmin or console etc, see SQL below!
+	
+--de
+	* Beenden Sie laufende Versandauftraege.
+	* Loeschen Sie das Error Logfile 	files/logs/tellmatic_php_error.log (falls es existiert)
+	* Lesen sie die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	* Bitte lesen Sie auch die INSTALL.DE Datei. Dort wird beschrieben wie man die neuen Scripte fuer automatisches Boundemanagement und E-Mail-Adressen Validierung einrichtet.
+	* Sichern Sie alle Daten und Datenbanken!
+	* Zum Update von einer frueheren Version als 1.0.8.8 befolgen Sie zuerst die Anweisungen fuer das Update auf 1.0.8.8
+	* Sichern Sie alle Daten und Datenbanken!
+	* Kopieren Sie die neuen Dateien auf den Server. Vergessen Sie nicht den Pfad in den *.php Dateien im Installationsverzeichnis anzupassen / sowie include/send_it.php / check_it.php / bounce_it.php wenn Cronjobs genutzt werden sollen.
+	* Sichern Sie die alte Datenbank! Jetzt!
+	* Aktualisieren Sie die Datenbank, s.u.
+	
+	* Nachdem die Datenbank aktualisiert wurden sind noch einige Schritte in der Weboberflaeche noetig:
+
+		- Melden Sie sich als Administrator an Tellmatic an
+
+		- Standardsprache und Layout festlegen:
+			Tellmatic verwendet ab Version 1.0.9.0 Benutzerdefinierte Sprache und Layout fuer die Anmeldung an die GUI und fuer das Abmelde-/Unsubscribe-Formular.
+			Waehlen Sie unter 'Admin' - 'Einstellungen' die Standard-Sprache und das Standard-Layout aus und speichern die Einstellungen.
+			Die Anmelde-/Login-Maske erscheint nun in der gewaehlten Sprache und Layout/Style.
+
+			Die Datei Messages.inc.php fuer die Meldungen aus dem Abmelde-Formular wird nicht mehr genutzt. 
+			Stattdessen verwendet Tellmatic die global eingestellte Sprache fuer die Uebersetzung der Meldungen im Abmelde-/Unsubscribe-Formular.
+		
+		- Newsletter fuer die Anmelde-/Subscribe-Formulare erstellen:
+			Seit 1.0.9.0 wurden die einzelnen Templates fuer Anmeldeformulare fuer Double-OptIn, Anmeldung etc durch Newsletter ersetzt.
+			Das heisst, statt den bisherigen teilweise fest kodierten Texten oder fuer das Formular hinterlegte Templates Form_[id]_s/o.html etc werden nun vordefinierte, personalisierte Newsletter verschickt!
+			Erstellen Sie 3 neue Newsletter als Template: 
+				1 Newsletter fuer die Double-Optin-Mail
+				1 Newsletter fuer die Mail zur Bestaetigung des Eintrages
+				und 1 Newsletter fuer die Mail welche bei einem Update des Eintrages versendet werden soll.
+	
+				Zur Generierung des Bestaetigungslink fuer das Double-Opt-In Newsletter/Mail verwenden Sie die {SUBSCRIBE} oder/und {SUBSCRIBE_URL} Variable 
+			 
+		- Meldungen fuer Anmeldeformulare anpassen:
+			Die Meldungen fuer die Anmeldeformulare werden nun in der Formularmaske hinterlegt. 
+			Es muessen hierfuer keine Templates mehr angepasst werden.
+			Das Template Form_[ID].html wird aber weiterhin verwendet.
+			Fuer die Ausgabe der Meldungen im Anmeldeforumlar ist nun die Datei Form_success.html zustaendig.
+			
+			Bitte passen Sie die Meldungen fuer die Formulare an in dem Sie das Formular bearbeiten und die entsprechenden Texte in den Textfeldern eintragen.
+			
+			
+
+-- SQL update 1.0.8.9 --> 1.0.9.0rc2
+
+Datenbank aktualisieren: / Update Database:
+!Order does matter / Reihenfolge beachten!
+
+		ALTER TABLE `adr` ADD `proof` SMALLINT NOT NULL DEFAULT '0' AFTER `recheck` ;
+		ALTER TABLE `adr` ADD `source` ENUM( 'user', 'import', 'subscribe', 'sync' , 'extern') NOT NULL AFTER `proof` ;
+		ALTER TABLE `adr` ADD `source_id` INT NOT NULL DEFAULT '0' AFTER `source` ;
+		ALTER TABLE `adr` ADD `source_extern_id` INT NOT NULL DEFAULT '0' AFTER `source_id` ;
+		ALTER TABLE `adr` ADD INDEX ( `source` ) ;			
+		ALTER TABLE `adr` ADD INDEX ( `source_id` ) ;
+		ALTER TABLE `adr` ADD INDEX ( `source_extern_id` ) ;
+		ALTER TABLE `adr` ADD INDEX ( `proof` ) ;
+
+		ALTER TABLE `user` ADD `startpage` VARCHAR( 64 ) NOT NULL DEFAULT 'Welcome' COMMENT 'page/action after login' AFTER `expert` ;
+
+		ALTER TABLE `config` ADD `lang` VARCHAR( 5 ) NOT NULL DEFAULT 'de' AFTER `name` ;	
+		ALTER TABLE `config` ADD `style` VARCHAR( 64 ) NOT NULL DEFAULT 'default' AFTER `lang` ;
+		ALTER TABLE `config` ADD `proof` TINYINT( 1 ) NOT NULL DEFAULT '1' COMMENT 'enable proof' ;
+		ALTER TABLE `config` ADD `proof_url` VARCHAR( 255 ) NOT NULL DEFAULT 'http://proof.tellmatic.org' AFTER `proof` ;			
+		ALTER TABLE `config` ADD `proof_trigger` INT NOT NULL DEFAULT '10' AFTER `proof_url`;
+		ALTER TABLE `config` ADD `proof_pc` INT NOT NULL DEFAULT '10' AFTER `proof_trigger`;
+		ALTER TABLE `config` ADD `unsubscribe_host` INT NOT NULL DEFAULT '0' AFTER `unsubscribe_action` ;
+		ALTER TABLE `config` ADD INDEX ( `unsubscribe_host` ) ;
+
+		ALTER TABLE `config` CHANGE `unsubscribe_action` `unsubscribe_action` ENUM( 'unsubscribe', 'delete', 'blacklist', 'blacklist_delete' ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'unsubscribe';
+
+		ALTER TABLE `adr_grp` ADD `prod` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `standard` ;
+		ALTER TABLE `adr_grp` ADD INDEX ( `prod` ) ;		
+
+		ALTER TABLE `nl_q` ADD `touch` TINYINT NOT NULL AFTER `autogen` ;		
+		ALTER TABLE `nl_q` ADD `proof` TINYINT( 1 ) NOT NULL DEFAULT '1' COMMENT 'do proofing?' AFTER `check_blacklist` ;
+		ALTER TABLE `nl_q` ADD INDEX ( `touch` ) ;
+		ALTER TABLE `nl_q` ADD INDEX ( `proof` ) ;
+
+		ALTER TABLE `nl_h` ADD `proof` SMALLINT DEFAULT '0' COMMENT 'optional proof return value' AFTER `errors` ;		
+
+		ALTER TABLE `hosts` ADD `delay` INT NOT NULL DEFAULT '100000' AFTER `reply_to` ;
+
+
+		ALTER TABLE `frm` ADD `multiple_pubgroup` TINYINT( 1 ) NOT NULL DEFAULT '0' COMMENT 'allow multiple public groups' AFTER `overwrite_pubgroup` ;
+		ALTER TABLE `frm` ADD `nl_id_doptin` INT NOT NULL DEFAULT '0' AFTER `multiple_pubgroup`;
+		ALTER TABLE `frm` ADD `nl_id_greeting` INT NOT NULL DEFAULT '0' AFTER `nl_id_doptin`;
+		ALTER TABLE `frm` ADD `nl_id_update` INT NOT NULL DEFAULT '0' AFTER `nl_id_greeting`;
+		ALTER TABLE `frm` ADD `message_doptin` TEXT CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `nl_id_update`;
+		ALTER TABLE `frm` ADD `message_greeting` TEXT CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `message_doptin`;
+		ALTER TABLE `frm` ADD `message_update` TEXT CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `message_greeting` ;
+
+		ALTER TABLE `frm` ADD `host_id` INT NOT NULL DEFAULT '0' COMMENT 'SMTP Host ID' AFTER `nl_id_update` ;		
+
+		ALTER TABLE `frm` ADD `standard` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `siteid` ;
+		ALTER TABLE `frm` ADD `proof` TINYINT( 1 ) NOT NULL DEFAULT '1' COMMENT 'do proofing?' AFTER `check_blacklist` ;
+		ALTER TABLE `frm` ADD INDEX ( `standard` ) ;
+
+		UPDATE `frm` set `multiple_pubgroup`=1;
+		UPDATE `adr_grp` SET `prod`=1;
+		UPDATE `nl` SET `massmail`=0;
+
+		
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.9
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Please also read INSTALL.EN on how to set up cronjob scripts, auto-validation and auto-bounce,amagement.	
+
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.8 please follow instructions for update to 1.0.8.8
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	if don't you want to use the new feature for saving output to temporary files in admin/tmp please set USE_TMP_HTML_FILES to FALSE in tm_lib.inc.php (default: TRUE  since 1.0.8.8)
+	To deactivate the logbook set TM_LOG to FALSE in tm_lib.inc.php (TRUE, >=	 1.0.8.8)
+	That's it. Have fun with the new features!
+	
+--de
+	Lesen sie die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Bitte lesen Sie auch die INSTALL.DE Datei. Dort wird beschrieben wie man die neuen Scripte fuer automatisches Boundemanagement und E-Mail-Adressen Validierung einrichtet.
+	Sichern Sie alle Daten und Datenbanken!
+	Zum Update von einer frueheren Version als 1.0.8.8 befolgen Sie zuerst die Anweisungen fuer das Update auf 1.0.8.8
+	Sichern Sie alle Daten und Datenbanken!
+	Kopieren Sie die neuen Dateien auf den Server. Vergessen Sie nicht den Pfad in den *.php Dateien im Installationsverzeichnis anzupassen / sowie include/send_it.php / check_it.php / bounce_it.php wenn Cronjobs genutzt werden sollen.
+	Sichern Sie die alte Datenbank! Jetzt!
+	Aktualisieren Sie die Datenbank, s.u.
+	Wenn Sie das neue Feature womit die Ausgabe in temporaere HTML Dateien in admin/tmp geschrieben wird nicht nutzen moechten, setzen Sie USE_TMP_HTML_FILES in tm_lib.inc.php auf FALSE (standard: TRUE, seit 1.0.8.7)
+	Zum deaktivieren des Logbuchs TM_LOG in tm_lib.inc.php auf FALSE setzen (TRUE, seit 1.0.8.8)	
+	Das wars, viel Spass.
+	
+-- SQL update 1.0.8.8 --> 1.0.8.9:
+
+Datenbank aktualisieren: / Update Database:
+
+	ALTER TABLE `lnk` CHANGE `short` `short` VARCHAR( 48 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;
+	ALTER TABLE `lnk_grp` CHANGE `short` `short` VARCHAR( 48 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.8
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Please also read INSTALL.EN on how to set up cronjob scripts, auto-validation and auto-bounce,amagement.	
+
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.7 please follow instructions for update to 1.0.8.7
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	if don't you want to use the new feature for saving output to temporary files in admin/tmp please set USE_TMP_HTML_FILES to FALSE in tm_lib.inc.php (default: TRUE  since 1.0.8.8)
+	To deactivate the logbook set TM_LOG to FALSE in tm_lib.inc.php (TRUE, >=	 1.0.8.8)
+	That's it. Have fun with the new features!
+	
+--de
+	Lesen sie die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Bitte lesen Sie auch die INSTALL.DE Datei. Dort wird beschrieben wie man die neuen Scripte fuer automatisches Boundemanagement und E-Mail-Adressen Validierung einrichtet.
+	Sichern Sie alle Daten und Datenbanken!
+	Zum Update von einer frueheren Version als 1.0.8.7 befolgen Sie zuerst die Anweisungen fuer das Update auf 1.0.8.7
+	Sichern Sie alle Daten und Datenbanken!
+	Kopieren Sie die neuen Dateien auf den Server. Vergessen Sie nicht den Pfad in den *.php Dateien im Installationsverzeichnis anzupassen / sowie include/send_it.php / check_it.php / bounce_it.php wenn Cronjobs genutzt werden sollen.
+	Sichern Sie die alte Datenbank! Jetzt!
+	Aktualisieren Sie die Datenbank, s.u.
+	Wenn Sie das neue Feature womit die Ausgabe in temporaere HTML Dateien in admin/tmp geschrieben wird nicht nutzen moechten, setzen Sie USE_TMP_HTML_FILES in tm_lib.inc.php auf FALSE (standard: TRUE, seit 1.0.8.7)
+	Zum deaktivieren des Logbuchs TM_LOG in tm_lib.inc.php auf FALSE setzen (TRUE, seit 1.0.8.8)	
+	Das wars, viel Spass.
+	
+-- SQL update 1.0.8.7 --> 1.0.8.8:
+
+Datenbank aktualisieren: / Update Database:
+
+ALTER TABLE nl ADD track_personalized TINYINT NOT NULL DEFAULT 1 AFTER track_image;
+
+CREATE TABLE `log` (
+  `id` int(11) NOT NULL auto_increment,
+  `siteid` varchar(255) character set utf8 NOT NULL default '',
+  `date` datetime NOT NULL default '0000-00-00 00:00:00',
+  `author_id` int(11) NOT NULL default '0',
+  `action` enum('new','edit','delete','memo','usage') character set utf8 NOT NULL default 'memo' COMMENT 'ausgefuehrte aktion: new, edit, delete',
+  `object` varchar(64) character set utf8 NOT NULL default '' COMMENT 'wo wurde geaendert',
+  `property` varchar(64) character set utf8 NOT NULL default '' COMMENT 'was wurde geaendert, feldname',
+  `x_value` longtext character set utf8 NOT NULL COMMENT 'alter wert',
+  `edit_id` int(11) NOT NULL default '0' COMMENT 'id des geaenderten eintrags, bzw id des neuen eintrags oder geloeschte',
+  `data` longtext character set utf8,
+  `memo` varchar(255) character set utf8 NOT NULL default '' COMMENT 'wenn loeschung, enthaelt dieses feld einen teil de alten daten!',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `lnk` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `siteid` varchar(64) collate utf8_bin NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `author` varchar(64) collate utf8_bin NOT NULL,
+  `editor` varchar(64) collate utf8_bin NOT NULL,
+  `aktiv` tinyint(1) NOT NULL,
+  `short` varchar(16) collate utf8_bin NOT NULL,
+  `name` varchar(255) collate utf8_bin NOT NULL,
+  `url` tinytext collate utf8_bin NOT NULL,
+  `descr` tinytext collate utf8_bin NOT NULL,
+  `clicks` bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `lnk_click` (
+  `id` bigint(11) NOT NULL auto_increment,
+  `created` datetime NOT NULL,
+  `siteid` varchar(64) collate utf8_bin NOT NULL default '',
+  `lnk_id` int(11) NOT NULL default '0',
+  `nl_id` int(11) NOT NULL default '0',
+  `q_id` int(11) NOT NULL default '0',
+  `adr_id` bigint(11) NOT NULL default '0',
+  `h_id` bigint(11) NOT NULL default '0',
+  `ip` varchar(16) collate utf8_bin NOT NULL default '0.0.0.0',
+  `clicks` int(11) NOT NULL default '1',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `unique_clicks` (`siteid`,`lnk_id`,`nl_id`,`q_id`,`adr_id`,`h_id`,`ip`),
+  KEY `siteid` (`siteid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `lnk_grp` (
+  `id` int(11) NOT NULL auto_increment COMMENT 'unique internal id',
+  `siteid` varchar(64) collate utf8_bin NOT NULL COMMENT 'site id',
+  `created` datetime NOT NULL COMMENT 'creation date',
+  `updated` datetime NOT NULL COMMENT 'last update date',
+  `author` varchar(64) collate utf8_bin NOT NULL COMMENT 'author name/id',
+  `editor` varchar(64) collate utf8_bin NOT NULL COMMENT 'editor name/id',
+  `aktiv` tinyint(1) NOT NULL,
+  `standard` tinyint(1) NOT NULL default '0',
+  `short` varchar(16) collate utf8_bin NOT NULL,
+  `name` varchar(255) collate utf8_bin NOT NULL,
+  `descr` tinytext collate utf8_bin NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `lnk_grp_ref` (
+  `id` int(11) NOT NULL auto_increment,
+  `siteid` varchar(64) collate utf8_bin NOT NULL default '',
+  `item_id` int(11) NOT NULL default '0',
+  `grp_id` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
+  KEY `siteid` (`siteid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.7
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Please also read INSTALL.EN on how to set up cronjob scripts, auto-validation and auto-bounce,amagement.	
+
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.6 please follow instructions for update to 1.0.8.6
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	if don't you want to use the new feature for saving output to temporary files in admin/tmp please set USE_TMP_HTML_FILES to FALSE in tm_lib.inc.php (default: TRUE  since 1.0.8.7)	
+	That's it. Have fun with the new features!
+	
+--de
+	Lesen sie die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Bitte lesen Sie auch die INSTALL.DE Datei. Dort wird beschrieben wie man die neuen Scripte fuer automatisches Boundemanagement und E-Mail-Adressen Validierung einrichtet.
+	Sichern Sie alle Daten und Datenbanken!
+	Zum Update von einer frueheren Version als 1.0.8.6 befolgen Sie zuerst die Anweisungen fuer das Update auf 1.0.8.6
+	Sichern Sie alle Daten und Datenbanken!
+	Kopieren Sie die neuen Dateien auf den Server. Vergessen Sie nicht den Pfad in den *.php Dateien im Installationsverzeichnis anzupassen / sowie include/send_it.php / check_it.php / bounce_it.php wenn Cronjobs genutzt werden sollen.
+	Sichern Sie die alte Datenbank! Jetzt!
+	Aktualisieren Sie die Datenbank, s.u.
+	Wenn Sie das neue Feature womit die Ausgabe in temporaere HTML Dateien in admin/tmp geschrieben wird nicht nutzen moechten, setzen Sie USE_TMP_HTML_FILES in tm_lib.inc.php auf FALSE (standard: TRUE ab 1.0.8.7)
+	Das wars, viel Spass.
+	
+-- SQL for update from 1.0.8.6 to 1.0.8.7:
+
+Datenbank aktualisieren: / Update Database:
+		ALTER TABLE `config` ADD `emailcheck_sendit` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `emailcheck_subscribe`;
+		ALTER TABLE `config` ADD `emailcheck_checkit` TINYINT( 1 ) NOT NULL DEFAULT '3' AFTER `emailcheck_sendit`;
+
+		ALTER TABLE `config` ADD `unsubscribe_use_captcha` TINYINT( 1 ) NOT NULL DEFAULT '0';
+		ALTER TABLE `config` ADD `unsubscribe_digits_captcha` TINYINT( 1 ) NOT NULL DEFAULT '4';
+		ALTER TABLE `config` ADD `unsubscribe_sendmail` SMALLINT NOT NULL DEFAULT '1';
+		ALTER TABLE `config` ADD `unsubscribe_action` enum('unsubscribe','delete') collate utf8_bin NOT NULL;
+
+		ALTER TABLE `config` ADD `checkit_limit` SMALLINT NOT NULL DEFAULT '25';
+		ALTER TABLE `config` ADD `checkit_from_email` VARCHAR( 255 ) NOT NULL DEFAULT '';
+		ALTER TABLE `config` ADD `checkit_adr_reset_error` TINYINT( 1 ) NOT NULL DEFAULT '1';
+		ALTER TABLE `config` ADD `checkit_adr_reset_status` TINYINT( 1 ) NOT NULL DEFAULT '1';
+
+  		ALTER TABLE `config` ADD `bounceit_limit` SMALLINT NOT NULL DEFAULT '10';
+		ALTER TABLE `config` ADD `bounceit_host` INT NOT NULL DEFAULT '0';
+		ALTER TABLE `config` ADD `bounceit_search` enum('header','body','headerbody') collate utf8_bin NOT NULL default 'headerbody';
+ 		ALTER TABLE `config` ADD `bounceit_action` enum('auto','error','unsubscribe','aktiv','delete') collate utf8_bin NOT NULL default 'auto';
+		ALTER TABLE `config` ADD `bounceit_filter_to` TINYINT( 1 ) NOT NULL DEFAULT '0';
+		ALTER TABLE `config` ADD `bounceit_filter_to_email` VARCHAR( 255 ) NOT NULL DEFAULT '';
+		
+		ALTER TABLE `adr` ADD `recheck` TINYINT( 1 ) NULL DEFAULT '0';
+				
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.6
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.5 please follow instructions for update to 1.0.8.5
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	if you want to use the new feature for saving output to temporary files in admin/tmp please set USE_TMP_HTML_FILES to TRUE in tm_lib.inc.php	
+	That's it. Have fun with the new features!
+	
+--de
+	Lies die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Sichere alle deine Daten und Datenbanken!
+	Zum Update auf 1.0.8.6 von einer frueheren Version als 1.0.8.5 befolge zuerst die Anweisungen fuer das Update auf 1.0.8.5
+	Sichere alle deine Daten und Datenbanken!
+	Kopieren die neuen Dateien auf den Server. Vergiss nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen.
+	Sichere deine Datenbank! Jetzt!
+	Aktualisiere die Datenbank, s.u.
+	Wenn Du das neue Feature nutzen moechtest womit die Ausgabe in temporaere HTML Dateien in admin/tmp geschrieben wird, setze USE_TMP_HTML_FILES in tm_lib.inc.php auf TRUE (ab 1.0.8.5)
+	Das wars, viel Spass.
+
+------------------------------
+
+Datenbank aktualisieren: / Update Database:
+	ALTER TABLE `nl` ADD `title` VARCHAR( 255 ) AFTER `subject`;
+	ALTER TABLE `nl` ADD `title_sub` VARCHAR( 255 ) AFTER `title`; 
+	ALTER TABLE `nl` ADD `summary` LONGTEXT AFTER `body_text`;
+	ALTER TABLE `nl` ADD `is_template` TINYINT(1) default 0 after `track_image`; 
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.5
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.4 please follow instructions for update to 1.0.8.4
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	if you want to use the new feature for saving output to temporary files in admin/tmp please set USE_TMP_HTML_FILES to TRUE in tm_lib.inc.php	
+	That's it. Have fun with the new features!
+	
+--de
+	Lies die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Sichere alle deine Daten und Datenbanken!
+	Zum Update auf 1.0.8.5 von einer frueheren Version als 1.0.8.4 befolge zuerst die Anweisungen fuer das Update auf 1.0.8.4
+	Sichere alle deine Daten und Datenbanken!
+	Kopieren die neuen Dateien auf den Server. Vergiss nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen.
+	Sichere deine Datenbank! Jetzt!
+	Aktualisiere die Datenbank, s.u.
+	Wenn Du das neue Feature nutzen moechtest womit die Ausgabe in temporaere HTML Dateien in admin/tmp geschrieben wird, setze USE_TMP_HTML_FILES in tm_lib.inc.php auf TRUE
+	Das wars, viel Spass.
+
+------------------------------
+Datenbank aktualisieren: / Update Database:
+
+			ALTER TABLE `frm` ADD `force_pubgroup` SMALLINT( 1 ) NOT NULL DEFAULT '0' 
+			AFTER `check_blacklist`;
+			ALTER TABLE `frm` ADD `pubgroup_errmsg` VARCHAR( 255 ) NOT NULL DEFAULT '""' AFTER `blacklist_errmsg` ;
+			ALTER TABLE `frm` ADD `overwrite_pubgroup` SMALLINT( 1 ) NOT NULL DEFAULT '0' 
+			AFTER `force_pubgroup` ;
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.4-fix01
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details!
+	To install from previous version than 1.0.8.4 follow instructions to update to 1.0.8.4.
+	Copy all new files from the package in  include/ (without subdirs) and include/install to your Tellmatic include directory.
+	The most important file is Class_Q.inc.php !
+	Done.
+
+--de
+	Lies die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Zum Update einer frueheren Version als 1.0.8.4 befolge zuerst die Anweisungen fuer das Update auf 1.0.8.4
+	Kopiere alle neuen Dateien aus dem Archiv im Verzeichnis include/ (ohne Unterverzeichnisse) und include/install in das Tellmatic include-Verzeichnis.
+	Die wichtigste Datei ist die Class_Q.inc.php !
+	Fertig! Das wars.
+	 
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.4
+--en
+	Read the CHANGES file carefully! It contains the list of new features and changes with some more or less technical details! 
+	Backup all your files and the database!
+	To update earlier Versions than 1.0.8.2 please follow instructions for update to 1.0.8.2
+	Login into Tellmatic as admin and go to admin-->settings and write down all your SMTP-Server and email settings!
+	Backup all your files and the database!	
+	Copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	Backup the database! Do it now!
+	Update Database use phpMyAdmin or console etc, see SQL below!
+	Login to TM as admin again and create a new SMTP Host with the settings you have noted before, set it te default SMTP host.
+	Edit existing SMTP hosts with new settings and fill out new empty values like return-path etc. (All SMTP-Settings are now 'per host')
+	That's it. Have fun with the new features!
+	
+--de
+	Lies die Datei CHANGES aufmerksam durch. Hier stehen nuetzlich Hinweise und einige technische Infos zu den Aenderungen!!!
+	Sichere alle deine Daten und Datenbanken!
+	Zum Update auf 1.0.8.4 von einer frueheren Version als 1.0.8.2 befolge zuerst die Anweisungen fuer das Update auf 1.0.8.2
+	Melde dich als Administrator in Tellmatic an und schreibe die Einstellungen fuer den SMTP Server und E-Mails bei den Einstellungen auf!
+	Sichere alle deine Daten und Datenbanken!
+	Kopieren die neuen Dateien auf den Server. Vergiss nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen.
+	Sichere deine Datenbank! Jetzt!
+	Aktualisiere die Datenbank, s.u.
+	Melde dich erneut in Tellmatic an und erstelle einen neuen Standard-SMTP Host mit den Einstellungen die Du dir vorher ja aufgeschrieben hast.
+	Aendere existierende SMTP Hosts ab und fuelle die leeren Felder mit sinnvollen Werten. Alle SMTP und E-Mail Einstellungen die vorher bei den Konfigurationseinstelungen fuer Tellmatic waren, sind nun in den Hosts abgelegt!
+	Das wars, viel Spass.
+	
+------------------------------
+Datenbank aktualisieren: / Update Database:
+
+	ALTER TABLE `hosts` ADD `standard` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `aktiv` ;
+	ALTER TABLE `hosts` ADD `smtp_ssl` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `smtp_domain` ;
+	ALTER TABLE `hosts` ADD `smtp_max_piped_rcpt` SMALLINT NOT NULL DEFAULT '1' AFTER `smtp_ssl` ;
+	ALTER TABLE `hosts` ADD `max_mails_atonce` SMALLINT NOT NULL DEFAULT '25' AFTER `pass` ;
+	ALTER TABLE `hosts` ADD `max_mails_bcc` SMALLINT NOT NULL DEFAULT '50' AFTER `max_mails_atonce` ;
+	ALTER TABLE `hosts` ADD `sender_name` VARCHAR( 255 ) NOT NULL AFTER `max_mails_bcc` ;
+	ALTER TABLE `hosts` ADD `sender_email` VARCHAR( 255 ) NOT NULL AFTER `sender_name` ;
+	ALTER TABLE `hosts` ADD `return_mail` VARCHAR( 255 ) NOT NULL AFTER `sender_email` ;
+	ALTER TABLE `hosts` ADD `reply_to` VARCHAR( 255 ) NOT NULL AFTER `return_mail` ;
+	ALTER TABLE `hosts` ADD INDEX ( `standard` ) ;
+
+	ALTER TABLE `nl_q` ADD `autogen` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `check_blacklist` ;
+	ALTER TABLE `nl_q` ADD INDEX ( `autogen` ) ;
+
+	ALTER TABLE `nl` DROP `attm` ; 
+	ALTER TABLE `config`
+		DROP `smtp_host`,
+		DROP `smtp_port`,
+		DROP `smtp_domain`,
+		DROP `smtp_user`,
+		DROP `smtp_pass`,
+		DROP `smtp_auth`,
+		DROP `sender_name`,
+		DROP `sender_email`,
+		DROP `return_mail`,
+		DROP `max_mails_atonce`,
+		DROP `max_mails_bcc` ;
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.3
+	--skipped!!!
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.2
+
+--en
+	copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.8.1 please follow instructions for update to 1.0.8.1
+	Update Database, see below
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen
+	Zum Update auf 1.0.8.2 von einer frueheren Version als 1.0.8.1 befolgen Sie bitte zuerst die Anweisungen fuer 1.0.8.1
+	Aktualisieren Sie die Datenbank, s.u.
+------------------------------
+Datenbank aktualisieren: / Update Database:
+
+		ALTER TABLE `frm` ADD `action_url` VARCHAR( 255 ) NOT NULL AFTER `name`;
+		ALTER TABLE `frm` CHANGE `descr` `descr` TINYTEXT CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;
+		ALTER TABLE `nl_attm` CHANGE `site_id` `siteid` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.1
+--en
+	copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.8.0 please follow instructions for update to 1.0.8.0
+	Update Database, see below
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen
+	Zum Update auf 1.0.8.1 von einer frueheren Version als 1.0.8.0 befolgen Sie bitte zuerst die Anweisungen fuer 1.0.8.0
+	Aktualisieren Sie die Datenbank, s.u.
+------------------------------
+in include/tm_config.inc.php:
+change:
+	define("TM_DOMAIN",'http://mydomain.tld');
+to:
+	$protocol = $_SERVER['HTTPS'] ? "https://" : "http://";
+	define("TM_DOMAIN",$protocol.'mydomain.tld');
+
+Datenbank aktualisieren: / Update Database:
+
+ALTER TABLE `nl` ADD `body_text` LONGTEXT NULL AFTER `body` ;
+
+ CREATE TABLE `nl_attm` (
+`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`nl_id` INT NOT NULL ,
+`file` VARCHAR( 255 ) NOT NULL ,
+`siteid` VARCHAR( 64 ) NOT NULL ,
+INDEX ( `nl_id` )
+) ENGINE = MYISAM;
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.8.0
+--en
+	copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.7.4 please follow instructions for update to 1.0.7.4
+	Update Database, see below
+	Enter Mailservers for smtp (send mails) and pop3/imap (bouncemanagement). The Server set in the mainsettings is used for internal mails now. 
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen
+	Zum Update auf 1.0.7.4 von einer frueheren Version als 1.0.7.4 befolgen Sie bitte die Anweisungen fuer 1.0.7.4
+	Aktualisieren Sie die Datenbank, s.u.
+	Tragen Sie die  Mailserver für smtp (Mails senden) und pop3/imap (Bouncemanagement) ein. Der in den Einstellungen angegebene SMTP-Serger wird weiterhin fuer interne Mails verwendet!
+------------------------------
+
+Edit include/tm_config.inc
+	after $tm["DB"]["port"]...
+	add: $tm["DB"]["Socket"]=0;
+	or set to 1 if you want to use sockets
+
+Datenbank aktualisieren: / Update Database:
+
+CREATE TABLE `hosts` (
+  id int(11) NOT NULL auto_increment,
+  name varchar(255) collate utf8_bin NOT NULL default '',
+  aktiv tinyint(1) NOT NULL default '1',
+  host varchar(255) collate utf8_bin NOT NULL default '',
+  port smallint(6) NOT NULL default '0',
+  `type` enum('smtp','pop3','imap') collate utf8_bin NOT NULL default 'smtp',
+  options varchar(255) collate utf8_bin NOT NULL default '',
+  smtp_auth varchar(255) collate utf8_bin NOT NULL default '',
+  smtp_domain varchar(255) collate utf8_bin NOT NULL default '',
+  `user` varchar(64) collate utf8_bin default NULL,
+  pass varchar(64) collate utf8_bin default NULL,
+  siteid varchar(64) collate utf8_bin NOT NULL default '',
+  PRIMARY KEY  (id),
+  KEY aktiv (aktiv),
+  KEY siteid (siteid),
+  KEY hosts_aktiv_siteid (aktiv,siteid)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+ALTER TABLE `nl_q` ADD `host_id` INT( 11 ) NOT NULL AFTER `grp_id` ;
+ALTER TABLE `nl_q` ADD INDEX ( `host_id` ) ;
+ALTER TABLE `nl_h` ADD `host_id` INT( 11 ) NOT NULL AFTER `adr_id` ;
+ALTER TABLE `nl_h` ADD INDEX ( `host_id` ) ;
+ALTER TABLE `config` ADD `smtp_port` SMALLINT NOT NULL DEFAULT '25' AFTER `smtp_host` ;
+ALTER TABLE `config` ADD `smtp_auth` VARCHAR( 32 ) NOT NULL AFTER `smtp_pass` ;
+
+ALTER TABLE `nl` ADD `rcpt_name` VARCHAR( 255 ) NOT NULL DEFAULT 'Newsletter' AFTER `massmail` ;
+ALTER TABLE `config` ADD `rcpt_name` VARCHAR( 255 ) NOT NULL DEFAULT 'Newsletter' AFTER `track_image` ;
+
+ALTER TABLE `adr_grp` ADD `public` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `name` , ADD `public_name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_bin NULL AFTER `public` ;
+ALTER TABLE `frm_grp_ref` ADD `public` TINYINT NOT NULL DEFAULT '0' AFTER `grp_id` ;
+
+CREATE TABLE blacklist (
+  id int(11) NOT NULL auto_increment,
+  `type` enum('email','domain','expr') collate utf8_bin NOT NULL default 'email',
+  expr varchar(255) collate utf8_bin NOT NULL default '',
+  aktiv tinyint(1) NOT NULL default '1',
+  siteid varchar(64) collate utf8_bin NOT NULL default '',
+  PRIMARY KEY  (id),
+  KEY `type` (`type`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+ALTER TABLE `frm` ADD `check_blacklist` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `subscribe_aktiv` ;
+ALTER TABLE `frm` ADD `blacklist_errmsg` VARCHAR( 255 ) NOT NULL AFTER `captcha_errmsg` ;
+ALTER TABLE `nl_q` ADD `check_blacklist` TINYINT NOT NULL DEFAULT '0' AFTER `send_at` ;
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.7.4
+--en
+	copy newer files and don't forget to set path in *.php in / and include/send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.7.3 please follow instructions for update to 1.0.7.3
+
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in den *.php Dateien in / und include/send_it.php anzupassen wenn Cronjobs genutzt werden sollen
+	Zum Update auf 1.0.7.4 von einer frueheren Version als 1.0.7.3 befolgen Sie bitte die Anweisungen fuer 1.0.7.3
+	
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.7.3
+--en
+	copy newer files and don't forget to set path in send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.7.2 please follow instructions for update to 1.0.7.2
+	
+	edit tm_config.inc.php:
+		//domain
+		$tm_Domain="http://domain.tld";
+		//absoluter pfad , docroot
+		$tm_docroot="/home/user/htdocs";
+		//script verzeichnis
+		$tm_dir="tellmatic";
+		
+		becomes:
+		
+		//domain
+		define("TM_DOMAIN","http://domain.tld");
+		//absoluter pfad , docroot
+		define("TM_DOCROOT","/home/user/htdocs");
+		//script verzeichnis
+		define("TM_DIR","tellmatic");
+	
+		and
+		
+		include ($tm_docroot."/".$tm_dir."/include/tm_lib.inc");
+		
+		becomes:
+		
+		include (TM_DOCROOT."/".TM_DIR."/include/tm_lib.inc.php");
+	
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in send_it.php anzupassen wenn Cronjobs genutzt werden sollen-
+	Zum Update auf 1.0.7.3 von einer frueheren Version als 1.0.7.2 befolgen Sie bitte die Anweisungen fuer 1.0.7.2
+
+	editieren Sie anschliessend die Datei include/tm_config.inc.php:
+
+		//domain
+		$tm_Domain="http://domain.tld";
+		//absoluter pfad , docroot
+		$tm_docroot="/home/user/htdocs";
+		//script verzeichnis
+		$tm_dir="tellmatic";
+		
+		wird zu:
+		
+		//domain
+		define("TM_DOMAIN","http://domain.tld");
+		//absoluter pfad , docroot
+		define("TM_DOCROOT","/home/user/htdocs");
+		//script verzeichnis
+		define("TM_DIR","tellmatic");
+	
+		und
+		
+		include ($tm_docroot."/".$tm_dir."/include/tm_lib.inc");
+		
+		wird zu:
+		
+		include (TM_DOCROOT."/".TM_DIR."/include/tm_lib.inc.php");
+
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.7.2
+--en
+	copy newer files and don't forget to set path in send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.7.1 please follow instructions for update to 1.0.7.1
+	
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in send_it.php anzupassen wenn Cronjobs genutzt werden sollen-
+	Zum Update auf 1.0.7.2 von einer frueheren Version als 1.0.7.1 befolgen Sie bitte die Anweisungen fuer 1.0.7.1
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.7.1
+--en
+	copy newer files and don't forget to set path in send_it.php after updating if you plan to use cronjobs!
+	To update earlier Versions than 1.0.7 please follow instructions for update to 1.0.7
+	
+--de
+	Kopieren Sie die neuen Dateien auf Ihren Server. Vergessen Sie nicht den Pfad in send_it.php anzupassen wenn Cronjobs genutzt werden sollen-
+	Zum Update auf 1.0.7.1 von einer frueheren Version als 1.0.7 befolgen Sie bitte die Anweisungen fuer 1.0.7
+
+UPDATE
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.7 
+--en
+A new installation is recommended.
+
+Updating from 1.0.6 (and earlier versions) to 1.0.7 / 1.0.7.1:
+
+Please update to 1.0.6 first or reinstall and import your data
+rename mnl_config.inc to tm_config.inc.php
+Delete all .inc files
+Copy all files
+Update Paths in click.php, send_it.php, subscribe.php and unsubscribe.php , news_blank.png.php etc.
+create dirs: 
+	/files/reports
+	/admin/tmp
+
+Update Database:
+
+ALTER TABLE adr ADD FULLTEXT (email);
+ALTER TABLE adr_details ADD INDEX adrd_siteid_adrid ( adr_id , siteid );
+ALTER TABLE user ADD email VARCHAR( 255 ) NOT NULL AFTER passwd , ADD last_login INT(11) NOT NULL AFTER email;
+ALTER TABLE user ADD crypt VARCHAR( 128 ) NOT NULL AFTER passwd;
+ALTER TABLE adr ADD clean TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER email;
+ALTER TABLE nl_h ADD ip VARCHAR( 16 ) NOT NULL DEFAULT '0.0.0.0' AFTER sent;
+ALTER TABLE frm_s ADD ip VARCHAR( 16 ) NOT NULL DEFAULT '0.0.0.0' AFTER adr_id;
+ALTER TABLE user ADD manager SMALLINT( 1 ) NOT NULL DEFAULT '0' AFTER admin;
+
+ALTER TABLE frm
+		ADD email_errmsg VARCHAR( 255 ),
+		ADD f0_errmsg VARCHAR( 255 ) ,
+		ADD f1_errmsg VARCHAR( 255 ) ,
+		ADD f2_errmsg VARCHAR( 255 ) ,
+		ADD f3_errmsg VARCHAR( 255 ) ,
+		ADD f4_errmsg VARCHAR( 255 ) ,
+		ADD f5_errmsg VARCHAR( 255 ) ,
+		ADD f6_errmsg VARCHAR( 255 ) ,
+		ADD f7_errmsg VARCHAR( 255 ) ,
+		ADD f8_errmsg VARCHAR( 255 ) ,
+		ADD f9_errmsg VARCHAR( 255 ) ;
+ALTER TABLE frm 
+		ADD f0_expr VARCHAR( 255 ) ,
+		ADD f1_expr VARCHAR( 255 ) ,
+		ADD f2_expr VARCHAR( 255 ) ,
+		ADD f3_expr VARCHAR( 255 ) ,
+		ADD f4_expr VARCHAR( 255 ) ,
+		ADD f5_expr VARCHAR( 255 ) ,
+		ADD f6_expr VARCHAR( 255 ) ,
+		ADD f7_expr VARCHAR( 255 ) ,
+		ADD f8_expr VARCHAR( 255 ) ,
+		ADD f9_expr VARCHAR( 255 ) ;
+		
+ALTER TABLE frm ADD email VARCHAR( 255 ) NOT NULL AFTER subscribe_aktiv;
+ALTER TABLE frm ADD captcha_errmsg VARCHAR( 255 ) NOT NULL AFTER email_errmsg;
+
+UPDATE adr SET siteid = 'tellmatic';
+UPDATE adr_details SET siteid = 'tellmatic';
+UPDATE adr_grp SET siteid = 'tellmatic';
+UPDATE adr_grp_ref SET siteid = 'tellmatic';
+UPDATE config SET siteid = 'tellmatic';
+UPDATE frm SET siteid = 'tellmatic';
+UPDATE frm_grp_ref SET siteid = 'tellmatic';
+UPDATE frm_s SET siteid = 'tellmatic';
+UPDATE log SET siteid = 'tellmatic';
+UPDATE nl_grp SET siteid = 'tellmatic';
+UPDATE nl SET siteid = 'tellmatic';
+UPDATE nl_h SET siteid = 'tellmatic';
+UPDATE nl_q SET siteid = 'tellmatic';
+UPDATE user SET siteid = 'tellmatic';
+
+ALTER TABLE nl_h ADD INDEX nlh_siteid_ip (siteid,ip);
+ALTER TABLE nl_h ADD INDEX nlh_siteid_qid_ip (siteid,ip,q_id);
+ALTER TABLE nl_h ADD INDEX nlh_siteid_ip_grpid (siteid,ip,grp_id);
+ALTER TABLE nl_h ADD INDEX nlh_siteid_ip_qid_nlid (siteid,ip,q_id,nl_id);
+ALTER TABLE nl_h ADD INDEX h_nlid_adrid_stat ( status , nl_id , adr_id );
+ALTER TABLE nl_h ADD INDEX nlh_siteid_status ( siteid , status );
+ALTER TABLE frm_s ADD INDEX frms_siteid_ip (siteid,ip);
+ALTER TABLE frm_s ADD INDEX frms_siteid_ip_frmid (siteid,ip,frm_id);
+ALTER TABLE frm_s ADD INDEX frms_siteid_ip (siteid,ip);
+ALTER TABLE frm_s ADD INDEX frms_siteid_ip_frmid (siteid,ip,frm_id);
+ALTER TABLE adr_grp_ref ADD INDEX grp_site_id ( grp_id , siteid );
+ALTER TABLE frm_grp_ref ADD INDEX grp_site_id ( grp_id , siteid ); 
+ALTER TABLE adr_grp_ref ADD INDEX aref_adrid_siteid ( adr_id , siteid );
+ALTER TABLE adr ADD INDEX adr_siteid_status ( siteid , status );
+ALTER TABLE adr ADD INDEX adr_siteid_email ( email , siteid );
+ALTER TABLE adr ADD INDEX adr_siteid_id ( id , siteid );
+
+now make a small php script, <?php echo md5('tellmatic'.'username'.'password');?> and update your password with the generated password hash 
+go to table [prefix]_user and edit your user
+ set passwd to: "9d8acdc4a8d4d2cc2d5b41253a86da9c"
+ and name to "tellmatic"
+now the password is 'letmein'
+please login at /admin/index.php and change your password.
+this is necessary because password is saved as a hash value md5(id+name+pw)
+
+download geoip database from http://www.maxmind.com/app/geolitecity
+	http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+	unzip and copy the file to include/geoip/GeoLiteCity.dat
+
+after all is done enter errormessages and names to existing forms!
+
+have fun.
+
+if you need help, feel free to write to the public forum.
+or if you need personal help, make a donation and write an email.
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.6
+
+--en
+Updating from 1.0.5 (and earlier versions) to 1.0.6:
+
+	Backup your current installation and database! This is always recommended when you update any software.
+	Delete /index.php from tellmatic installation directory. Your login is now at /admin/index.php !
+	Create directory "/files/tmp" and make it writeable, its needed to store the session files.
+	Copy everything from Tellmatic 1.0.6 over your current installation. be sure you have a backup of your files!
+	If you edited some of the form-templates, they may be overwritten. Maybe just leave them out if you changed them.
+	Make sure you read the CHANGES file! It contains important information for you.
+	
+	Update your database: see SQL below
+		* please add table prefix if necessary!!! *
+		e.g.: "	ALTER TABLE tm_nl_grp ADD created DATETIME NOT NULL , ...etc."
+		where "tm_" is your table prefix
+
+
+--de
+Update von 1.0.5 (und früheren Versionen) auf 1.0.6:
+
+	Erstellen Sie ein Backup Ihrer aktuellen Installation und der Datenbank! Es wird grundsaätzlich bei allen Updates - egal welcher Software - empfohlen ein Backup der aktuellen Installation zu machen ;-) (Wie wertvoll ein Backup ist und das sich der Aufwand durchaus lohnt, stellt man spätestens dann fest wenn man eins braucht und keins hat.)
+	Löschen Sie die index.php aus dem Tellmatic Installationsverzeichnis. Die Verwaltung zu Tellmatic erreichen nun unter admin/index.php
+	Erstellen Sie das Verzeichnis /files/tmp
+	Kopieren Sie die Dateien der aktuellen Version 1.0.6.
+	Wenn Sie Templates editiert haben (zum Beispiel fuer Formulare), spielen Sie diese aus der Sicherung zurueck oder sparen diese beim kopieren aus.
+	Lesen Sie die CHANGES-Datei, diese enthaelt wichtige Information zu dem Update!
+
+	Aktualisieren Sie Ihre Datenbank, siehe untenstehende SQL Statements. Beachten Sie den Tabellenprefix den Sie ggf. bei der vorherigen Installation angegeben haben.
+		z.B.: "	ALTER TABLE tm_nl_grp ADD created DATETIME NOT NULL , ...etc."
+		wobei "tm_" der Tabellen-Prefix ist.
+		Ändern Sie die SQL Statements ggf. dementsprechend ab.
+	
+----------------------------------------------------------------------------------------------------------------
+	
+	 update-SQL:
+
+	ALTER TABLE nl_grp ADD created DATETIME NOT NULL ,
+		ADD updated DATETIME NOT NULL ,
+		ADD author VARCHAR( 64 ) NOT NULL ,
+		ADD editor VARCHAR( 64 ) NOT NULL ;
+
+	ALTER TABLE config ADD track_image VARCHAR( 255 ) NOT NULL ,
+		ADD check_version TINYINT DEFAULT '1' NOT NULL;
+		
+	ALTER TABLE adr_grp ADD created DATETIME NOT NULL ,
+		ADD updated DATETIME NOT NULL ,
+		ADD author VARCHAR( 64 ) NOT NULL ,
+		ADD editor VARCHAR( 64 ) NOT NULL ;
+		
+	ALTER TABLE adr_details ADD memo TEXT AFTER adr_id;
+		
+	ALTER TABLE frm ADD use_captcha TINYINT DEFAULT '1' ,
+		ADD digits_captcha TINYINT DEFAULT '4' AFTER use_captcha,
+		ADD submit_value VARCHAR( 255 ) NOT NULL AFTER digits_captcha ,
+		ADD reset_value VARCHAR( 255 ) NOT NULL AFTER submit_value,
+		ADD subscribe_aktiv TINYINT DEFAULT '1' AFTER submit_value;
+			
+	ALTER TABLE user ADD expert TINYINT DEFAULT '0' AFTER lang ;
+
+	ALTER TABLE nl ADD track_image VARCHAR( 255 ) DEFAULT '_global' NOT NULL;
+
+	#only needed if updatig from versions earlier than 1.0.5:
+	ALTER TABLE nl ADD content_type VARCHAR( 12 ) DEFAULT 'html' NOT NULL ;
+
+Thats all, now please test it! 
+
+Congrats, you're finished :)
+Please read the CHANGES file.
+You may report updating problems to the tellmatic forum at sourceforge.
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.5
+--en:
+Update to 1.0.5:
+	Just copy files over your current version.
+
+--de:
+Update auf Version 1.0.5:
+	Aktualisieren Sie die installiere Version mit der neuen Version indem Sie die neueren Dateien auf den Server kopieren.
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.4.1
+--en:
+Update from 1.0.4 to 1.0.4.1:
+	Just copy include/send_it.php over your current version.
+	See also notes for updating 1.0.4
+
+--de:
+Update von 1.0.4 auf Version 1.0.4.1:
+	Aktualisieren Sie die installiere Version von send_it.php im Verzeichnis 'include' mit der neuen Version.
+	Verfahren Sie ggf. wie im Update fuer 1.0.4 beschrieben.
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.4
+--en:
+Update from 1.0.3(a) to 1.0.4:
+
+	Please make a backup of your current installation!
+	Please copy Tellmatic-1.0.4 to your server.
+	If you already edited some of the Templates for your needs, please dont copy over.
+
+--de:
+Update von 1.0.3(a) auf Version 1.0.4:
+
+	Erstellen Sie eine Sicherheitskopie ihrer aktuellen Installation!
+	Kopieren Sie Tellmatic 1.0.4 auf Ihren Server. Sie koennen die vorhandene Installation ueberschreiben. 
+	Sollten Sie bereits die Templates fuer Formulare angepasst haben, kopieren Sie diese Dateien nicht.
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.3a
+--en:
+Update from 1.0.3 to 1.0.3-a:
+
+	Please make a backup of your current installation!
+	Please copy Tellmatic-1.0.3a to your server.
+	If you already edited some of the Templates for your needs, please dont copy over.
+
+--de:
+Update von 1.0.3 auf Version 1.0.3-a:
+
+	Erstellen Sie eine Sicherheitskopie ihrer aktuellen Installation!
+	Kopieren Sie Tellmatic 1.0.3a auf Ihren Server. Sie koennen die vorhandene Installation ueberschreiben. 
+	Sollten Sie bereits die Templates fuer Formulare angepasst haben, kopieren Sie diese Dateien nicht.
+
+
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.3a
+--en:
+Update to 1.0.3-a from previous version:
+	see below
+
+--de:
+Update auf 1.0.3-a von einer früheren Version:
+	siehe unten
+	
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.3
+--en:
+Update to 1.0.3 from previous version:
+
+	Please make a backup of your current installation!
+	Please copy Tellmatic-1.0.3 to your server.
+	If you already edited some of the Templates for your needs, please dont copy over.
+
+	Please add field 'lang' to the tellmatic usertable:
+	SQL:
+		ALTER TABLE [prefix_]user ADD lang VARCHAR( 8 ) DEFAULT 'de' NOT NULL AFTER style ; 
+		ALTER TABLE user ADD INDEX ( lang ) ;
+		After adding the field, please update your default-value for users:
+		UPDATE [prefix_]user SET lang='de';
+		
+		International users may use:
+		UPDATE [prefix_]user SET lang='en';
+
+	done.
+
+--de:
+Update auf 1.0.3 von einer früheren Version:
+	
+	Erstellen Sie eine Sicherheitskopie ihrer aktuellen Installation!
+	Kopieren Sie Tellmatic 1.0.3 auf Ihren Server. Sie koennen die vorhandene Installation ueberschreiben. 
+	Sollten Sie bereits die Templates fuer Formulare angepasst haben, kopieren Sie diese Dateien nicht.
+	
+	Bitte legen Sie das Feld mit dem Namen 'lang' in der Benutzertabelle von Tellmatic an:
+	SQL:
+		ALTER TABLE [prefix_]user ADD lang VARCHAR( 8 ) DEFAULT 'de' NOT NULL AFTER style ; 
+		ALTER TABLE user ADD INDEX ( lang ) ;
+	
+	Danach aktualisieren Sie die Felder mit dem Standardwert:
+	After adding the field, please update your default-value for users:
+		UPDATE [prefix_]user SET lang='de';
+		
+		International users may use:
+		UPDATE [prefix_]user SET lang='en';
+
+	fertig.
+
+EOF

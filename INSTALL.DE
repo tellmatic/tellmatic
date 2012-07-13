@@ -1,0 +1,116 @@
+/********************************************************************************/
+/* this file is part of: / diese Datei ist ein Teil von:                        */
+/* tellmatic, the newslettermachine                                             */
+/* tellmatic, die Newslettermaschine                                            */
+/* 2006/11 by Volker Augustin, multi.art.studio Hanau                            */
+/* Contact/Kontakt: info@tellmatic.org                                      */
+/* Homepage: www.tellmatic.org                                                   */
+/* leave this header in file!                                                   */
+/* diesen Header nicht loeschen!                                                */
+/* check Homepage for Updates and more Infos                                    */
+/* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
+/********************************************************************************/
+
+INSTALL
+
+Update:
+
+	Siehe UPDATE
+
+Hinweise:
+
+	siehe FAQ http://www.tellmatic.org/faq
+
+Installation:
+	Erstellen Sie wenn moeglich eine subdomain tellmatic.[ihredomain].[tld] mit einem separaten Verzeichnis.
+	Packen Sie das Archiv auf die lokale Festplatte aus (tar -xzvf tellmatic-x.x.x.tgz or use a new winzip version).
+	Das verzeichnis tellmatic-[xxx] oder den Inhalt des Verzeichnisses in ein Verzeichnis Ihrer Wahl auf den Server kopieren.
+	(Bilder muessen im Binaermodus uebertragen werden. Auto-Modus ist OK, aber fuehrt bei manchen FTP Clients zu Problemen und diese uebertragen die Dateien dann als Text.
+	Das ist kein Problem von Tellmatic sondern von fehlerhaften FTRP Programmen)
+	Alternativ koennen Sie mit SSH etc. das Archiv auf den Server kopieren und dort entpacken.
+	(Denken Sie aber daran alle Benutzer und Gruppen für Dateien und Verzeichnisse auf Ihre Serverumgebung anzupassen (chown).)
+	
+	Das Verzeichnis in dem Sie Tellmatic installieren moechten muss fuer den Webserver beschreibbar sein - ftp-> chmod --> user/group/others -> read/write/execute (0775 oder 0777)
+	
+	Bei fcgi/cgi versionen reicht es die Verzeichnisse mit den Rechten 0750 oder 0770 zu versehen.
+		
+	Nun mit dem Browser die Datei
+	
+	install.php
+
+	aufrufen, 
+
+	Sprache fuer die Installation waehlen und Lizenz akzeptieren,
+
+	Daten eingeben und bestaetigen.
+	
+	Sollten Fehler auftreten, folgen Sie bitte den Anweisungen.
+	
+	Alle Felder sind Pflichtangaben ausser Daten fuer SMTP.
+	Die Einstellungen fuer SMTP/POP3 werden nicht auf Gueltigkeit ueberprueft!
+
+	Das Newsletter wird nun installiert. Die Konfigurationsdatei 'include/tm_config.inc' und die Tabellen in der Datenbank wurden angelegt
+
+	Tellmatic benoetigt ebenfalls Schreibrechte fuer die folgenden Verzeichnisse:
+		admin/tmp
+		files/
+		files/forms
+		files/logs
+		files/import_export
+		files/newsletter
+		files/newsletter/images
+		files/attachements
+		files/reports
+		files/tmp
+		tpl (nur fuer die Installation)
+	
+	Wird eine Fehlermeldung ausgegeben, befolgen Sie bitte die Anweisungen.
+
+	Nach erfolgreicher Installation die Datei
+	'install.php'
+	loeschen oder umbenennen bzw an einen sicheren Ort verschieben.
+
+	Die Schreibrechte fuer das Verzeichnis include koennen wieder entfernt werden. (0755 rwxr-xr-x oder 0555 r-xr-xr-x oder entsprechend Ihrer Arbeitsumgebung.)
+
+		INFO:
+			Die Installationsroutine erstellt im Installationsverzeichnis eine Datei mit dem Namen .htpasswd.
+			Diese enthaelt den Benutzernamen und das verschluesselte Passwort fuer den Zugriff auf die ueber .htaccess geschuetzten Verzeichnisse files/forms, logs, import_export, reports, admin/tmp etc
+
+	In include/send_it.php, subscribe.php und unsubscribe.php sowie check_it.php und bounce_it.php den Pfad zu tm_confg.inc anpassen.
+	Hier muss der komplette Pfad, Docroot+Installdirectory angegeben werden.
+
+	Laden Sie die Geoip Datenbank von http://www.maxmind.com/app/geolitecity herunter
+		http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+		Entpacken und kopieren Sie die Datei nach 'include/geoip/GeoLiteCity.dat'
+
+	'admin/index.php' aufrufen, Name und Passwort im Loginfenster eingeben , Fertig, viel Spass!
+
+	require_once ("./tm_config.inc.php");
+
+	Zum automatischen Versenden erstellen Sie einen Cronjob auf Ihrem Server:
+	Mittels wget: 
+		*/5 * * * * wget http://[user:passwort]@[domain]/[tellmatic-installdir]/include/send_it.php > /dev/null
+	(user/pw muss angegeben werden), 	
+	oder per php CLI (empfohlen!):
+		*/5 * * * * /pfad/zu/php-cli-binary /pfad/zu/include/send_it.php > /dev/null
+
+
+	Sollten Sie keine Moeglichkeit haben einen Cronjob einzurichten, verwenden Sie bitte den manuellen Versand.
+	Ohne Cronjob ist leider kein terminierter Versand moeglich.
+
+	Seit Release 1.0.8.7 Tellmatic gehoeren zu Tellmatic einige weitere Scripte fuer automatisches Bouncemanagemewnt und E-Mail-Addressen validierung/Pruefung.
+	Fuer diese Scripte sollte ebenfalls ein Cronjob eingerichtet werden.
+	
+		* include/bounce_it.php: auto-bouncemanagement, Einstellungen unter 'Admin' -> 'Einstellungen', erzeugen Sie eien Cronjob welcher das Script z.B. alle 2 Stunden aufruft (Setzen Sie die Limits nicht zu hoch). Passen Sie den include Pfad am Anfang der Datei an und entfernen den exit; Befehl. 
+		Dieses Script kann auch manuell ueber den Browser aus dem Mellmatic Menue unter 'Verwaltung' aufgerufen werden
+
+		* include/check_it.php: automatische Pruefung markierter E-Mail-Adressen, Einstellungen unter 'Admin' -> 'Einstellungen', erzeugen Sie einen Cronjob welcher das Script z.B. alle 10 Minuten aufruft (Setzen Sie die Limits nicht zu hoch). Passen Sie den include Pfad am Anfang der Datei an und entfernen den exit; Befehl. 
+		Dieses Script kann auch manuell ueber den Browser aus dem Mellmatic Menue unter 'Verwaltung' aufgerufen werden
+
+Bei Fragen und Anregungen besuchen Sie bitte die Homepage www.tellmatic.org und lesen die Dokumentation und die FAQ oder schreiben ins oeffentliche Forum.
+Ich beantworte Fragen per E-Mail nur gegen vorherige Spenden1 Bitte nutzen Sie stattdessen das Forum.
+Fuer Supportanfragen, besuchen Sie bitte http://www.tellmatic.org/support
+
+Wichtig: 1und1 und Strato Kunden sollten diesbezueglich eien Blick ins Tellmatic Forum werfen. Hier gibt es wichtige Hinweise wie man Tellmatic auf diesen 'speziellen' Servern installiert und einrichtet!
+
+EOF
