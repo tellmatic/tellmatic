@@ -66,34 +66,36 @@ function checkHostType() {
 	form_id='edit_host';
 	check_id='type';
 	check_value='smtp';
-	items_match=[	['smtp_auth',false], 
-								['smtp_domain',false], 
-								['smtp_auth',false], 
-								['smtp_ssl',false], 
-								['sender_name',false], 
-								['sender_email',false], 
-								['return_mail',false],
-								['reply_to',false],
-								['max_mails_atonce',false],
-								['max_mails_bcc',false],
-								['smtp_max_piped_rcpt',false],
-								['delay',false],
-								['options',true],
-							];
-	items_nomatch=[	['smtp_auth',true], 
-								['smtp_domain',true], 
-								['smtp_auth',true], 
-								['smtp_ssl',true], 
-								['sender_name',true], 
-								['sender_email',true], 
-								['return_mail',true], 
-								['reply_to',true],
-								['max_mails_atonce',true],
-								['max_mails_bcc',true],
-								['smtp_max_piped_rcpt',true],
-								['delay',true],
-								['options',false],
-							];
+	items_match=[
+		['smtp_auth',false], 
+		['smtp_domain',false], 
+		['smtp_auth',false], 
+		['smtp_ssl',false], 
+		['sender_name',false], 
+		['sender_email',false], 
+		['return_mail',false],
+		['reply_to',false],
+		['max_mails_atonce',false],
+		['max_mails_bcc',false],
+		['smtp_max_piped_rcpt',false],
+		['delay',false],
+		['options',true],
+	];
+	items_nomatch=[
+		['smtp_auth',true], 
+		['smtp_domain',true], 
+		['smtp_auth',true], 
+		['smtp_ssl',true], 
+		['sender_name',true], 
+		['sender_email',true], 
+		['return_mail',true], 
+		['reply_to',true],
+		['max_mails_atonce',true],
+		['max_mails_bcc',true],
+		['smtp_max_piped_rcpt',true],
+		['delay',true],
+		['options',false],
+	];
 	checkFormSettings(form_id,items_match,items_nomatch,check_id,check_value);
 }
 
@@ -246,22 +248,24 @@ function checkImport() {
 function checkImport_X() {
 	//leider geht dat nich da value=1 nicht funzt, field.checked waere das richtige......
 	form_id='adr_import';
-	items_match=[	['merge_groups',true], 
-								['adr_grp',true], 
-								['status_new',true], 
-								['status_exists',true], 
-								['aktiv_new',true], 
-								['aktiv_existing',true], 
-								['check_double',true]
-							];
-	items_nomatch=[	['merge_groups',false], 
-								['adr_grp',false], 
-								['status_new',false], 
-								['status_exists',false], 
-								['aktiv_new',false], 
-								['aktiv_existing',false], 
-								['check_double',false]
-							];
+	items_match=[
+		['merge_groups',true], 
+		['adr_grp',true], 
+		['status_new',true], 
+		['status_exists',true], 
+		['aktiv_new',true], 
+		['aktiv_existing',true], 
+		['check_double',true]
+	];
+	items_nomatch=[
+		['merge_groups',false], 
+		['adr_grp',false], 
+		['status_new',false], 
+		['status_exists',false], 
+		['aktiv_new',false], 
+		['aktiv_existing',false], 
+		['check_double',false]
+	];
 
 	check_id='delete';
 	check_value='1';
