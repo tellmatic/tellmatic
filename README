@@ -14,7 +14,7 @@
 *+*+*+*+*+*+*+*+*+*+*+ README +*+*+*+*+*+*+*+*+*+*+*+*
 
 	tellmatic - the newslettermachine, die Newslettermaschine
-	2006/11 by Volker Augustin, multi.art.studio Hanau
+	2006/12 by Volker Augustin, multi.art.studio Hanau
 	Contact/Kontakt: info@tellmatic.org
 	Homepage: www.tellmatic.org
 	check Homepage for Updates and more Infos
@@ -33,7 +33,7 @@
 	
 *+*+*+*+*+*+*+*+*+*+ REQUIREMENTS +*+*+*+*+*+*+*+*+*+*+*
 	Server / ISP:
-		- Linux oder MacosX, (NO Windows!)
+		- Linux oder MacosX, (NO Windows! only for clients!)
 		- Apache HTTP Server (or similar, must support .htaccess) => http://httpd.apache.org/download.cgi
 		- PHP >= 5.2 => http://www.php.net/downloads.php , no early php5/php4 (full of bugs)! 
            + Imap Library + Mysql Lib + GD-Lib
@@ -45,11 +45,11 @@
 		- Optional: Cronjobs, PHP CLI or wget (Cronjobs execute at least every 10 Min. to be effective)
     
     Client:   
-       standard Browser with Javascript support (Seamonkey, Mozilla or Firefox, IE (limited, no 24Bit PNG support))
-       IE Support is limited1 Please use a standard browser.
+       standard Browser with Javascript support (Seamonkey, Mozilla or Firefox, IE (limited, no 24Bit PNG support?))
+       IE Support is limited! Please use a standard browser.
 
 *+*+*+*+*+*+*+*+*+*+ BASIC-FEATURES V1.0.x +*+*+*+*+*+*+*+*+*+*+*
-	Easy installation, installed in 2 minutes
+	Easy installation, installed in 2 minutes, but takes some time to setup everything!
 	Comfortable and intuitive web frontend
 	Multiuser
 	Online help
@@ -89,6 +89,8 @@
 	Double opt-in/out
 	Subscription-form-generator
 	Unlimited attachments
+	Inline Images
+	Save a copy of outgoing Mails in IMAP Folder
 	
 	and much more...	
 

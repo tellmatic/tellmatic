@@ -12,7 +12,345 @@
 /********************************************************************************/
 
 
-moved from cvs to git
+*+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.9.0-rc2/(-pre)  +*+*+*+*+*+*+*+*+*+*+*+*
+11ff.07.2011
+
+		The CVS Repository at Sourceforge (http://tellmatic.cvs.sourceforge.net/viewvc/tellmatic/tellmatic/) is no more updated, i use GIT on GitHub (http://www.github.org) instead (https://github.com/tellmatic/tellmatic), a mirror of latest releases will be put on SourceForge GIT (http://tellmatic.git.sourceforge.net/git/gitweb.cgi?p=tellmatic/tellmatic;a=tree) too.
+		github also holds a tellmatic-old (https://github.com/tellmatic/tellmatic-old) repository which contains ALL Versions (even if not released on sf ;-) of Tellmatic up to rc2-pre which is also the release that i used to initialize the tellmatic repo.
+		Big Thanks to Campino2k (Chris) and H0arry for introducing and helping with git!
+		
+*** New features/enhancements:
+
+	* Inline Images 
+			Tellmatic now supports inline images.
+			This means that you can attach and show images directly into your newsletters html body without loading them from the web!
+			For now this feature only works for 'local' hosted images from your Tellmatic newsletter images directory.
+		* how it works:
+			catch the html dom source of all images in html body
+			replace all local hosted images excluding blindimage php script src. 
+			save all images in array with source as key, find image path				
+			exclude blindimage source
+			on send: attach images, get cid: and replace html src with new multipart ids for inline images
+		* Code:
+			- to parse images from html source we use the awesome simple php html dom parser from http://simplehtmldom.sourceforge.net/
+			- Method parseNL from Class_NL gor a new parameter: 
+				$values=array();
+				values['IMAGE1']="something";
+				function parseNL($data,$type,$values=Array()) {
+			- Newsletter was parsed from file!!! changed! now uses data passed to parse function
+				template file/text file and parsed version still saved on nl_edit, nl_new (-> nl_upload)
+		* GUI:				
+			- nl_new
+			- nl_edit
+			- q_new
+		* Memo:
+			- external image sources not working right now! only 'local' hosted images are supported (url must match tellmatic url and newsletter images directory)
+			- q uses nl setting, but can be overwritten!
+		   	- nl setting has precedence, use_inline_images in q_new will use nl default, otherwise use new q setting for inline images if new setting in q selected....
+		* 2do:
+			- parse attached html file
+			- support external image sources
+			- we still have to get image1 url at first, this is static code as used in tm_NL->parseNL() !!! Make a function for tm_nl where these vars get parsed etc.
+			- replacing img src with phpdomhtml parser not working yet, using str_replace
+				
+		* Send to Touch-OptIn Addresses
+			When sending newsletter, you now can choose (create q) if you 
+			send to all valid addresses marked as 'touch' 
+			OR send to only those valid adr which not have the 'touch' flag 
+			OR to all valid addresses in the group as it was the default for previous versions of Tellmatic.
+			* Memo:
+				- Don't be confused, because Tellmatic now supports different ways to send to Addresses, it may is possible to create more than one Q entry for  this newsletter->group reference! (depends on the 'touch' or 'not touch' setting)
+				touch: 0: only send to adr with no touch flag
+				touch: 1: send to all (old behaviour)
+				touch: 2: only send to adr with touch flag
+				if q entry for nl/adr_grp already exists:
+					existing q touch=0 (no touch) if q exists, only add q if new q.touch=2 for new (only touch)
+					existing q touch=1 if exists, do nothing, old behaviour
+					existing q touch=2 (only touch) if q exists, only add q if new q.touch=0 for new (no touch)
+
+		* 	Reset/Flush link click counters
+				Reset or Flush click counter/history per link/group
+			* Memo: 
+				- links have a click-counter field that counts all clicks, also double clicks, just a counter!
+				- also there is a link_click table that count clicks per adr, nl, group, etc
+				- we have two new methods to reset/flush clicks in link list and link group list:
+					1. reset clicks, per link and for all links in a group
+					2. flush clicks: includes links click counter reset, and also deletes entries from link click table for specified links!
+			* Code:	
+				- the 'reset counter' per group function will use a loop through all links in that group and reset/flush all links.
+				- so we have 2 new methods in the class:
+					->resetClicks(link_id)
+					->flushClicks(link_id)
+			* GUI:
+				link list: 2 icons for reset / flush click counter/history
+				link group list: 2 icons for reset / flush click counter/history of all links in this group
+
+		*	IMAP-Copy, Save outgoing Mail
+			Tellmatic can now place copy of outgoing personalized mails in imap folder. (This was a requested feature from a Company visiting Tellmatic on Cebit 2011, but i never heared from them. I included it anyway because its a nice feature, in germany this could be an important featur because you can use it as 'Rechtskonforme Speicherung von E-Mails' or so...)	
+			* Code: 
+				- use imap_append()
+				- GetMessage() from mimemessage Class
+			* Gui: select sent and trash folder for imap hosts (can only be selected on editing a host ;-)				
+				q_new, create new queue: enable feature and select imap host. (send_it then will use the defined imap sent-folder for a copy of outgoing mails)
+			* Howto: 
+				- create imap host and save
+				- check imap host / test server
+				- if check is successful, edit imap host and select sent folder, save
+				- now create a new q and check the 'imap copy' feature, select imap host and save q (only imap server with a sent-folder will be listed here)
+				- when the q runs you can see emails droppng in the imap folder when connected to it with a client like seamonkey or similar and your imap server supports this. 
+			* 2do: 
+				- config: set imap host for unsubscribe mails 
+				- forms: select host for copy of subscribe mails
+				- unsubscribe: place copy in selected imap folder (defined in config section)
+				- q/send_it: check for valid imap host on send, break q if enabled but not valid
+
+		* Filemanager alternatives	
+				Tellmatic still has no filemanager ;-)
+				But as of now i support some filemanager alternatives which i found working nicely.
+				Tellmatic checks for configured Filemanager Directory (tm_lib_admin) and if exists shows a link to open the fm in iframe or new window! if nothing was found it shows a hint where to install and where to get the filemanagers. 
+				Currently supported filemanagers are: 
+					- eXtplorer, http://extplorer.sourceforge.net/
+					- pXp, http://www.webxplorer.org/phpXplorer/www/
+					- MyFT.PHP
+					- GT Filemanager, http://www.gerd-tentler.de/tools/filemanager/?page=usage
+				* Memo: only extplorer works without strict warnings, all others throw strict errors, but i included them anyway......, strict error checking should then be disabled in php.ini settings or they wont run. myftphp is quite old and a bit outdated, i can't recommend! its tere for completition!  
+				* 2do:
+					- support more fm, if you know one, please report in the forum, or tracker					
+
+		* HTML Header and Footer 
+			you now can configure the html header and foter directly in the mask for creating or editing newsletters
+			if empty (e.g. new nl), the default are them from tm_lib.inc.php
+	
+		* DEMO-User
+			Admin can set the demo flag at the user editing page.
+			Users who have the demo flag set will have limited features.
+			* Gui:
+				- icon: emoticon_smile
+
+		* DEMO becomes TM_DEMO, tm_DEMO()
+				* Code:
+					i renamed the constand DEMO to TM_DEMO to be more unique (some other scripts may use DEMO too)
+					the check for demo mode is changed to use the tm_DEMO() function instead of checking the constant. (tm_DEMO will check the constant anyway) 		
+					tm_DEMO() is true if 
+						- global TM_DEMO=TRUE
+						- in frontend: TM_DEMO_FE
+						- user has demo flag set
+							
+		* User DEBUG(_LANG) Settings
+			Users can have the debug flag set. 
+			So they can see debug messages.
+			Admin can enable debugging for users.
+			Debugging can enabled for core code and languages
+			Language debugging allows you to see what strings gets translated and which not. This may help developers and translators to more easily debugging the translations.
+			* Gui:
+				- icons: 
+					- debug: application_view_detail
+					- debug_lang: application_view_list
+			 		
+		* DEBUG becomes TM_DEBUG, tm_DEBUG()
+			* Code:
+				i renamed the constand DEBUG to TM_DEBUG to be more unique (some other scripts may use DEBUG too)
+				the check for demo mode is changed to use the tm_DEBUG() function instead of checking the constant. (tm_DEBUG will check the constant anyway) 		
+				tm_DEBUG() is true if 
+					- global TM_DEBUG=TRUE
+					- in frontend: TM_DEBUG_FE
+					- user has debug flag set
+
+	*** Enhancements & minor changes:
+		* hosts: translate smtp server testmail
+		* hosts: smtp server testmail split into html and text parts
+		* forms: list, form_form: mark production groups (pr)
+		* nl_grp_list showed total number of newsletter in group, now it shows: n/m where n are normal newsletters and m are the templates	
+		* small changes in css
+		* after deleting a q, the link to stats was not shown in nl_list, now checks for hc>0 and !template
+		* install: translate all text and mails!
+		* loader: moved to bottom of page, activated loader for menu links again , in default tpl
+		* send_it: translate mails, use default frontend language
+		* host_test: more infos, folders, imap status
+		* submit blink color: js flasherused in forms now changes between mFormSubmit and mFormSubmitFocus
+				* 2do:
+					- only a worlaround, need to remove and replace parameters in all forms, use classname instead of color or hardcoded classname	 
+		* menu: unsubscribe form -> moved from manage to forms section
+
+	
+	*** Code changes / Optimizations:
+		* new filestructure for TM/include:
+			moved files in include/
+			- Frontend: subscribe, unsubscribe, click, blankimage, view
+				sunscribe*
+				unsubscribe*
+				view*
+				click*
+				nl_blank*
+				moved to subdir 'tm_Frontend'
+				TM_INCLUDEPATH_FE
+			- Backend:
+					check_it
+					bounce_it
+					send_it
+				moved to subdir 'tm_Backend'
+				xx_it.php still in /include (call files in include/tm_Lib/)
+				TM_INCLUDEPATH_BE
+			- Library: Tellmatic Lib, Functions etc
+					Errorhandling
+					Functions
+					Gettext
+					Lang
+					PHPIDS
+					wysiwyg
+					Main
+					Menu
+					tm_lib*
+					tm_version
+					Login*
+					Foot
+					Footer
+					Head
+					Header
+					Index
+				moved to subdir 'tm_Lib'
+				TM_INCLUDEPATH_LIB					
+			- Classes: Tellmatic Classes
+					Classes.*
+					Class_*
+				moved to subdir 'tm_Class'
+				TM_INCLUDEPATH_CLASSES	
+			- Gui: Tellmatic GUI
+				moved to subdir 'tm_Gui'
+				TM_INCLUDEPATH_GUI TM_GUIDIR
+			- Library-Ext: External Libs, Functions etc
+					* smtp
+					* sasl
+					* mime
+					* phpdom
+					* libchart
+					* geoip
+					* phpids
+					* filemanager_[external_filemanager]
+				moved to subdir 'tm_Lib_Ext'				
+				TM_INCLUDEPATH_LIB_EXT
+		* new constants: 
+			TM_ADMINDIR
+			TM_ADMINPATH
+			TM_ADMINDIR_TMP
+			TM_ADMINPATH_TMP
+  			* automagically find tm_config.inc,php:
+			send_it, bounce_it, check_it
+			news_blank
+			api_example*
+			click
+			subscribe
+			unsubscribe
+			view
+			e.g. require_once(realpath(dirname(__FILE__))."/include/tm_config.inc.php");
+		* include/install renamed to include/tm_install
+		* tm_NL: return parse log
+			use $this->parseLog
+		* newsletter: parseNL: use nl body from $data['nl'] instead of template file		
+		* Newsletter:parseNL, new parameter: $values to set values for nl vars, e.g. image1 cid for inline images, instead of parsing them the usual way they get replaced by that value. 
+			only used for image1 for now.
+		* renamed file_edit.inc.php to filemanager_file_edit.inc.php						
+		* tm_message() ->use styles from type :D
+		* wrapper functions tm_message/_success/_notice/_warning/_error/_debug/_config() call tm_message() with proper style
+			* Memo: 
+				- tm_message(): type name = style class name!
+				- tm_message use style from type... type is checkd to add message prefixes like "Fehler:" etc.
+				- message style classes are not per template. defined in tellmatic.css included by all templates.
+		* use tm_message_XXX() instead of echo
+		* replace tm_debugmessage() with tm_message_debug()
+		* ClassDB: use tm_message_debug, moved Gettext.inc inclusion in tm_lib before loading classes
+		* queue_send: if tm_DEBUG() use tm_message_debug
+		* finally removed massmail features from code. still some GUI issues. 
+		* constants for db access defined in tm_lib and install_conf_sql
+		* click.php: more debugging, use tm_message_debug
+		* replace include(_once) with require or require_once!
+		* send_it: split: send_it_q_prepare, send_it_q_start, send_it_q_run, send_it_q_finish
+		* send_it: logfilename, hmmmm! default logfile q.log.html used now...
+		* getVar(): add parameter 'global': if 1, try to fetch global variable :O, not used yet, but nice to have
+				so, if used, and nothing set, but a global value exists, getvar doe set global var, no need to check if global var is set. but global comes last!
+			function getVar($Var,$slashes=0,$default="",$global=0)				
+		* install: demo mode: if DEMO, dont check for existing tm_config.inc.php
+		* install: check for imap_open: Fatal error: Call to undefined function imap_open() in
+				/xxx/tellmatic/include/Class_Mail.inc.php on line 45
+		* nl: create newsletter from db content instead of templates...
+		* database: more indexes (esp. link tables)
+		* wysiwyg.inc.php: using extended top menu again
+		* load_translateStrings now throws error message instead of exiting if file cannot be opened.  
+		* database: hosts: server/IP was too short (40, now 255) 
+
+
+						
+	*** fixed Bugs:
+		* errtype:Notice |;| errmsg:"Undefined index: proof" |;| errfile:include/queue_list.inc.php
+		* nl: copy: textversion nnn_t.txt was not copied
+		* newsletter: copy nl was screwed up. copying wrong files. fixed.		
+		* Typo in the New Link form
+			https://sourceforge.net/tracker/?func=detail&aid=3322430&group_id=190396&atid=933192
+		* Link representation has one space too much
+			https://sourceforge.net/tracker/?func=detail&aid=3295668&group_id=190396&atid=933192
+		* Import displays one row too much
+			https://sourceforge.net/tracker/?func=detail&aid=3293323&group_id=190396&atid=933192
+		* function mk_microtime($timestamp,$Y=0,$M=5,$D=8,$H=11,$I=14,$S=17)
+					//2011-04-05 16:48:00
+					//0123-56-89 12:45:78	
+		* newsletter was not accessible if q was deleted, now newsletter gets status 'archive'
+		* parseNL: wrong q id! 
+		* parseNL: date is still "d.m.Y",  TM_NL_DATEFORMAT must contain % and use strftime format
+					see http://php.net/manual/de/function.strftime.php for proper syntax
+					http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html
+		* parse subscribe forms, templates missing {}
+			https://sourceforge.net/tracker/?func=detail&atid=933192&aid=3249657&group_id=190396
+			TM_APPURL
+			TM_APPTEXT
+		* subscribe, success message, variables dont get parsed 
+				https://sourceforge.net/tracker/?func=detail&atid=933192&aid=3250439&group_id=190396
+				TM_APPNAME, TM_APPDESC, TM_APPURL, TM_APPTEXT, TM_VERSION, TM_DISCLAIMER
+		* subscribe: do not show complete memo from db, only entered memo from subscriber, MEMO
+
+		... see bugtracker for a complete list
+	
+	*** Known Issues:
+		no known critical bugs yet
+		for open bugs reported by users see bugtracker at sourceforge
+
+	*** Upcoming / Future Plans:
+		i have a huge and steadily growing todo list!
+		please write your ideas for new features and/or enhancements to the forum and/or tracker
+		finish + enhance current new features
+
+
+
+
+	*** SQL:
+		ALTER TABLE `hosts` ADD `imap_folder_trash` VARCHAR( 255 ) NULL AFTER `delay` ;
+		ALTER TABLE `hosts` ADD `imap_folder_sent` VARCHAR( 255 ) NULL AFTER `imap_folder_trash` ;
+		ALTER TABLE `nl_q` ADD `save_imap` INT NOT NULL DEFAULT '0' COMMENT 'save copy of outgoing mail in imap sentfolder' AFTER `sent` ;
+		ALTER TABLE `nl_q` ADD `host_id_imap` INT NOT NULL DEFAULT '0' COMMENT 'id of imap host which is used to save a copy of outgoing email' AFTER `save_imap` ;		
+		ALTER TABLE `nl` ADD `use_inline_images` TINYINT( 1 ) NOT NULL DEFAULT '0' COMMENT '0: off, 1:local 2: local+extern' AFTER `track_personalized` ;
+		ALTER TABLE `nl_q` ADD `use_inline_images` TINYINT( 1 ) NOT NULL DEFAULT '0' COMMENT '0: off, 1:local 2: local+extern' AFTER `touch` ;
+		ALTER TABLE `nl` ADD `body_head` TEXT NOT NULL COMMENT 'html header' AFTER `aktiv` ;
+		ALTER TABLE `nl` ADD `body_foot` TEXT NOT NULL COMMENT 'html footer' AFTER `body` ;
+
+		ALTER TABLE `user` ADD `demo` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `expert` ;
+		ALTER TABLE `user` ADD `debug` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `startpage` ,
+					ADD `debug_lang` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `debug` ,
+					ADD `debug_lang_level` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `debug_lang` ;
+
+		ALTER TABLE `lnk` ADD INDEX ( `siteid` ); 
+		ALTER TABLE `lnk` ADD INDEX ( `short` ); 
+		ALTER TABLE `lnk_grp` ADD INDEX ( `siteid` );  
+		ALTER TABLE `lnk_grp` ADD INDEX ( `short` ); 
+		ALTER TABLE `lnk_grp` ADD FULLTEXT (`short`); 
+		ALTER TABLE `lnk` ADD FULLTEXT (`short`);
+		ALTER TABLE `lnk` ADD INDEX `idx_siteid_id` ( `siteid` , `id` );  
+		ALTER TABLE `lnk` ADD INDEX `idx_siteid_short` ( `siteid` , `short` );  
+		ALTER TABLE `lnk_grp` ADD INDEX `idx_siteid_id` ( `siteid` , `id` );
+		ALTER TABLE `lnk_grp` ADD INDEX `idx_siteid_short` ( `siteid` , `short` );  
+
+		/* ALTER TABLE `nl_q` ADD `touch` TINYINT NOT NULL AFTER `autogen` ;
+		ALTER TABLE `nl_q` ADD INDEX ( `touch` ) ;	*/
+ 
+
 
 *+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.9.0-rc1  +*+*+*+*+*+*+*+*+*+*+*+*
 	09.03.2011
@@ -73,7 +411,7 @@ moved from cvs to git
 		* admin settings/unsubscribe: unsubscribe action: added: blacklist / blacklist & delete
 			- addresses now can be unsubscribed, deleted, blacklisted or blacklisted and deleted on unsubscribe, used for global setting at this time, later we will have configurable unsubscrbe forms and a user frontend to change subscriptions				
 	
-	
+
 	*** Enhancements:
 		
 		* import: create new group while importing and merge with optionally selected groups. 
@@ -190,7 +528,6 @@ moved from cvs to git
 		many!
 		finish prepared new features
 	
-
 
 *+*+*+*+*+*+*+*+*+*+*+ CHANGES V1.0.8.9  +*+*+*+*+*+*+*+*+*+*+*+*
 	26.09.2010

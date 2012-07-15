@@ -11,6 +11,39 @@
 /* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
 /********************************************************************************/
 
+*+*+*+*+*+*+*+*+*+*+*+ any.Ver-sion to 1.0.9.0rc2
+
+*****
+--en
+	
+	a lot of things changed in this release candydate. 
+	at least an almost complete new filestructure for TM/include and a lot of new fields for the datata	
+	
+	* Finish running jobs! No delivery jobs should run when you perform an update!
+	* Backup all your files and the database!
+	* To update earlier Versions than 1.0.8.9 please follow instructions for update to 1.0.9-rc1
+	* Backup all your files and the database!
+	* Update Database. use phpMyAdmin or similar or console etc, see SQL below!
+	* Now you have to delete or move away a lot of files:
+		-- at first delete or move away all *.inc.php files in TM/include
+		-- 
+		--
+		--
+		--
+		--
+		--
+		--
+		
+		
++
++
++
++
++
+*
+******
+
+
 *+*+*+*+*+*+*+*+*+*+*+ 1.0.8.9 to 1.0.9.0rc1
 
 --en
