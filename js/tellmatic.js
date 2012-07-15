@@ -12,16 +12,16 @@
 /********************************************************************************/
 
 //copy selected option from selectbox to textarea/textfield etc. 
-		function copyselectedoption(ID,optionslist,pretag,posttag) {
-		//example:
-		//add: onChange="javascript:copyselectedoption('idOfTextArea_etc',this,'---pre---','---post---');" to a selectbox (this!).
-		//e.g. used in host_form.inc.php for imap/pop3 options			
-	    	var SelectedOption = optionslist.selectedIndex;
-	    	if (SelectedOption != 0) {
-	        	document.getElementById(ID).value += pretag + optionslist.options[SelectedOption].value + posttag;
-	        	optionslist.selectedIndex = 0;
-	    	}	
-		}
+function copyselectedoption(ID,optionslist,pretag,posttag) {
+//example:
+//add: onChange="javascript:copyselectedoption('idOfTextArea_etc',this,'---pre---','---post---');" to a selectbox (this!).
+//e.g. used in host_form.inc.php for imap/pop3 options			
+   	var SelectedOption = optionslist.selectedIndex;
+   	if (SelectedOption != 0) {
+       	document.getElementById(ID).value += pretag + optionslist.options[SelectedOption].value + posttag;
+       	optionslist.selectedIndex = 0;
+   	}	
+}
 
 //change css visibility of an element
 function makeVis(divID) {
