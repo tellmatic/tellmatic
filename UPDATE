@@ -11,37 +11,73 @@
 /* Besuchen Sie die Homepage fuer Updates und weitere Infos                     */
 /********************************************************************************/
 
-*+*+*+*+*+*+*+*+*+*+*+ any.Ver-sion to 1.0.9.0rc2
+*+*+*+*+*+*+*+*+*+*+*+ 1.0.9.0-rc1 1.0.9-rc2
 
 *****
 --en
 	
-	a lot of things changed in this release candydate. 
-	at least an almost complete new filestructure for TM/include and a lot of new fields for the datata	
+	Please read the CHANGES file! it contains some important informations about new features and some background info.
+	A lot of things changed in this release candidate!
+	At least an almost complete new filestructure for TM/include and some new fields in the database
 	
-	* Finish running jobs! No delivery jobs should run when you perform an update!
+	These update instructions assume that you update Tellmatic in the same directory as the old version and that you did no changes to the core code!
+	If you need to rename the directory, do it after the update and testing!
+	
+	TM is the install directory	
+	
+	* Finish running jobs first! No queues/delivery jobs should be running when you perform an update! Wait until all jobs are finished!
 	* Backup all your files and the database!
-	* To update earlier Versions than 1.0.8.9 please follow instructions for update to 1.0.9-rc1
+	* To update earlier Versions than 1.0.9.0-rc1 please follow instructions to update to 1.0.9-rc1 first.
 	* Backup all your files and the database!
-	* Update Database. use phpMyAdmin or similar or console etc, see SQL below!
+	* Backup all your files and the database! NOW!
+
+	Now we can start upgrading:
+		
+	* Update the Database. use phpMyAdmin or similar or console etc, see SQL statements below! (you maybe have to add your table prefix)
+	
 	* Now you have to delete or move away a lot of files:
-		-- at first delete or move away all *.inc.php files in TM/include
-		-- 
-		--
-		--
-		--
-		--
-		--
-		--
-		
-		
-+
-+
-+
-+
-+
-*
-******
+		Memo: do NOT delete tm_config.inc.php and .htacces, .htpasswd files
+		read carefully!
+		- At first delete or move away all *.inc.php and *.php files in TM/include EXCEPT tm_config.inc.php
+		- do NOT delete .htaccess, .htpasswd, index.html, index.php, tm_config.inc.php
+		- if exists: make a copy or move TM/include/geoip/GeoLiteCity.dat' to TM/include
+		- remove directories 'geoip', 'libchart-1.1', 'install', 'mimemessage', 'phphtmlparser', 'phpids', 'sasl' and 'smtp' (in short: remove all subdirs from TM/inlcude)
+		- now you should see only a few files (.htaccess, .htpasswd, index.php, index.html and tm_config.inc.php) in your TM/include folder
+		- now copy over all files from the new release into your TM folder.
+		- as you can see there is a new filstructure for the include directory, but some files are still in TM/include
+		- now edit TM/include/tm_config.inc.php and replace
+				include (TM_DOCROOT."/".TM_DIR."/include/tm_lib.inc.php");
+			with
+				include (TM_DOCROOT."/".TM_DIR."/include/tm_Lib/tm_lib.inc.php");
+
+		now you should be done!
+		login to tellmatic as usual and test.
+		have fun!
+
+SQL:
+
+		ALTER TABLE `hosts` ADD `imap_folder_trash` VARCHAR( 255 ) NULL AFTER `delay` ;
+		ALTER TABLE `hosts` ADD `imap_folder_sent` VARCHAR( 255 ) NULL AFTER `imap_folder_trash` ;
+		ALTER TABLE `nl_q` ADD `use_inline_images` TINYINT( 1 ) NOT NULL DEFAULT '0' COMMENT '0: off, 1:local 2: local+extern' AFTER `touch` ;
+		ALTER TABLE `nl_q` ADD `save_imap` INT NOT NULL DEFAULT '0' COMMENT 'save copy of outgoing mail in imap sentfolder' AFTER `sent` ;
+		ALTER TABLE `nl_q` ADD `host_id_imap` INT NOT NULL DEFAULT '0' COMMENT 'id of imap host which is used to save a copy of outgoing email' AFTER `save_imap` ;		
+		ALTER TABLE `nl` ADD `use_inline_images` TINYINT( 1 ) NOT NULL DEFAULT '0' COMMENT '0: off, 1:local 2: local+extern' AFTER `track_personalized` ;
+		ALTER TABLE `nl` ADD `body_head` TEXT NOT NULL COMMENT 'html header' AFTER `aktiv` ;
+		ALTER TABLE `nl` ADD `body_foot` TEXT NOT NULL COMMENT 'html footer' AFTER `body` ;
+		ALTER TABLE `user` ADD `demo` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `expert` ;
+		ALTER TABLE `user` ADD `debug` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `startpage` ,
+					ADD `debug_lang` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `debug` ,
+					ADD `debug_lang_level` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `debug_lang` ;
+		ALTER TABLE `lnk` ADD INDEX ( `siteid` ); 
+		ALTER TABLE `lnk` ADD INDEX ( `short` ); 
+		ALTER TABLE `lnk_grp` ADD INDEX ( `siteid` );  
+		ALTER TABLE `lnk_grp` ADD INDEX ( `short` ); 
+		ALTER TABLE `lnk_grp` ADD FULLTEXT (`short`); 
+		ALTER TABLE `lnk` ADD FULLTEXT (`short`);
+		ALTER TABLE `lnk` ADD INDEX `idx_siteid_id` ( `siteid` , `id` );  
+		ALTER TABLE `lnk` ADD INDEX `idx_siteid_short` ( `siteid` , `short` );  
+		ALTER TABLE `lnk_grp` ADD INDEX `idx_siteid_id` ( `siteid` , `id` );
+		ALTER TABLE `lnk_grp` ADD INDEX `idx_siteid_short` ( `siteid` , `short` );  
 
 
 *+*+*+*+*+*+*+*+*+*+*+ 1.0.8.9 to 1.0.9.0rc1
