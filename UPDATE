@@ -13,7 +13,6 @@
 
 *+*+*+*+*+*+*+*+*+*+*+ 1.0.9.0-rc1 1.0.9-rc2
 
-*****
 --en
 	
 	Please read the CHANGES file! it contains some important informations about new features and some background info and a lot of things which are just good to know.
@@ -50,13 +49,62 @@
 			with
 				include (TM_DOCROOT."/".TM_DIR."/include/tm_Lib/tm_lib.inc.php");
 		- copy your backup of GeoityLite.dat to TM/include/tm_Lib_Ext/geoip/GeoLiteCity.dat
+		
 		now you should be done!
 		login to tellmatic as usual and test.
 		have fun!
 		
-		if you have questions, there is a link to the forum and trackers at http://www.tellmatic.org and an irc channel at freenode.net (#tellmatic)
+		if you have questions, there is a link to the forum and trackers at http://www.tellmatic.org and an IRC channel at freenode.net (#tellmatic)
 
-SQL:
+--de
+
+	
+	Bitte lesen sie zuerst die CHANGES Datei (in englisch)! Diese beeinhaltet viele wichtige Informationen zu den neuen Features und Hintergrundinfos, sowie viele weitere Infos welche einfach gut sind zu wissen im Umgang mit Tellmatic.
+
+	In diesem Release Kandiaten haben sich viele Sachen geaendert!
+	Nicht zuletzt hat das TM/inlcude Verzeichnis eine neue Struktur bekommen.
+
+	Diese Update-Anleitung geht davon aus das das Update von Tellmatic im gleichen Verzeichnis ausgefuehrt wird und keine Aenderungen am Code vorgenommen wurden. 
+	Falls das Verzeichnis umbenannt werden soll, tun sie dies bitte nach dem Update!
+
+	TM ist ein Synonym fuer das Tellmatic Installationsverzeichnis.	
+	
+	* Beenden Sie alle laufenden Versandauftraege. Wenn Sie ein Upgrade durchfuehren sollten alle Versandauftraege abgeschlossen und keine offenen Versandauftraege mehr bestehen.   
+	* Sichern Sie alle Dateien und die Datenbank!
+	* Fuer ein Update von frueheren Versionen als 1.0.9.0-rc1, befolgen Sie bitte die Update Anweisungen bis 1.0.9.0-rc1 
+	* Sichern Sie alle Dateien und die Datenbank!
+	* Sichern Sie alle Dateien und die Datenbank! Jetzt!
+
+	Nun koennen wir mit dem Update beginnen:
+		
+	* Update the Database. use phpMyAdmin or similar or console etc, see SQL statements below! (you maybe have to add your table prefix)
+	* Aktualisieren Sie die Datenbank mittels zBsp. phpMyAdmin oder einem anderen Tool, bzw Console oder vergleichbarem.
+		Ggf. muss der Tabellenprefix eingefuegt/angepasst werden
+	* Nun werden eine ganze Menge Dateien aus dem TM/include Verzeichnis geloescht:
+		Memo: die Dateien tm_config.inc.php, .htacces, .htpasswd, index.html und index.php duerfen nicht geloescht werden.
+		Bitte die Anleitung zuerst bis zum Ende lesen bevor Sie fortfahren:
+			- Als erstes werden alle *.inc.php und *.php Dateien aus dem TM/include Verzeichnis geloescht, AUSSER tm_config.inc.php  		
+			- Die Dateien .htaccess, .htpasswd, index.html, index.php, tm_config.inc.php duerfen nicht geloescht werden.
+		- falls die Datei existiert: machen Sie eine Kopie oder Verschieben Sie die Datei GeoCityLite.dat von TM/include/geoip/GeoLiteCity.dat' nach TM/include/GeoCityLite.dat
+		- loeschen Sie die Verzeichnisse 'geoip', 'libchart-1.1', 'install', 'mimemessage', 'phphtmlparser', 'phpids', 'sasl' und 'smtp' (kurz: loeschen Sie alle Verzeichnisse und deren Inhalt aus TM/inlcude) 
+		- Nun sollten nur noch eine handvoll Dateien zu sehen sein (.htaccess, .htpasswd, index.php, index.html und tm_config.inc.php) 
+		- Jetzt kopieren Sie alle Dateien der neuen Version in das Tellmatic Installationsverzeichnis
+		- Wie Sie sehen koennen gibt es in TM/include eine neue Verzeichnisstruktur, einige Dateien jedoch verbleiben in TM/include.
+		- Oeffnen Sie die Datei TM/include/tm_config.inc.php und ersetzen
+				include (TM_DOCROOT."/".TM_DIR."/include/tm_lib.inc.php");
+			durch
+				include (TM_DOCROOT."/".TM_DIR."/include/tm_Lib/tm_lib.inc.php");
+		- Kopieren Sie die Datei GeoityLite.dat zurueck nach TM/include/tm_Lib_Ext/geoip/GeoLiteCity.dat
+		
+		Das wars, fertig.
+		Nun koennen Sie sich wie gewohnt in tellmatic anmelden und die neuen Funktionen testen. 
+		
+		Viel Spass!
+		
+		Fuer Fragen und Anregungen etc gibt es einen Link zum Forum und den Trackern auf http://www.tellmatic.org sowie einen IRC Channel auf Freenode.net (#tellmatic)
+
+
+SQL 1.0.9.0-rc1 --> 1.0.9-rc2:
 
 		ALTER TABLE `hosts` ADD `imap_folder_trash` VARCHAR( 255 ) NULL AFTER `delay` ;
 		ALTER TABLE `hosts` ADD `imap_folder_sent` VARCHAR( 255 ) NULL AFTER `imap_folder_trash` ;
