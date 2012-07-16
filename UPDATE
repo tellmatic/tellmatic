@@ -16,14 +16,14 @@
 *****
 --en
 	
-	Please read the CHANGES file! it contains some important informations about new features and some background info.
+	Please read the CHANGES file! it contains some important informations about new features and some background info and a lot of things which are just good to know.
 	A lot of things changed in this release candidate!
-	At least an almost complete new filestructure for TM/include and some new fields in the database
+	At least an almost complete new filestructure for TM/include and some new fields in the database.
 	
 	These update instructions assume that you update Tellmatic in the same directory as the old version and that you did no changes to the core code!
 	If you need to rename the directory, do it after the update and testing!
 	
-	TM is the install directory	
+	TM is a synonym for the install directory	
 	
 	* Finish running jobs first! No queues/delivery jobs should be running when you perform an update! Wait until all jobs are finished!
 	* Backup all your files and the database!
@@ -36,7 +36,7 @@
 	* Update the Database. use phpMyAdmin or similar or console etc, see SQL statements below! (you maybe have to add your table prefix)
 	
 	* Now you have to delete or move away a lot of files:
-		Memo: do NOT delete tm_config.inc.php and .htacces, .htpasswd files
+		Memo: do NOT delete tm_config.inc.php and .htacces, .htpasswd, index.html and index.php files
 		read carefully!
 		- At first delete or move away all *.inc.php and *.php files in TM/include EXCEPT tm_config.inc.php
 		- do NOT delete .htaccess, .htpasswd, index.html, index.php, tm_config.inc.php
@@ -49,10 +49,12 @@
 				include (TM_DOCROOT."/".TM_DIR."/include/tm_lib.inc.php");
 			with
 				include (TM_DOCROOT."/".TM_DIR."/include/tm_Lib/tm_lib.inc.php");
-
+		- copy your backup of GeoityLite.dat to TM/include/tm_Lib_Ext/geoip/GeoLiteCity.dat
 		now you should be done!
 		login to tellmatic as usual and test.
 		have fun!
+		
+		if you have questions, there is a link to the forum and trackers at http://www.tellmatic.org and an irc channel at freenode.net (#tellmatic)
 
 SQL:
 
